@@ -1,0 +1,3876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0b0e" />
+  <meta name="description" content="Nivelato: mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco. Inicia sesión para continuar." />
+  <title>Nivelato - Iniciar sesión</title>
+<link rel="canonical" href="https://login.nivelatolabs.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nivelato Labs">
+<meta property="og:title" content="Nivelato - Iniciar sesión">
+<meta property="og:description" content="Nivelato: mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco. Inicia sesión para continuar.">
+<meta property="og:url" content="https://login.nivelatolabs.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nivelato - Iniciar sesión">
+<meta name="twitter:description" content="Nivelato: mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco. Inicia sesión para continuar.">
+<meta name="robots" content="noindex, nofollow">
+  <script>
+    // m23: apply the stored/detected language to <html lang> and the title
+    // before first paint, so an English browser does not see a Spanish
+    // paint that flips mid-load. The full dictionary still loads with the
+    // classic i18n script below; this only fixes the document-level bits.
+    (function () {
+      try {
+        var l = null;
+        try { l = localStorage.getItem('nivelato-login-lang'); } catch (e) {}
+        if (l !== 'es' && l !== 'en') {
+          var n = (navigator.language || '').toLowerCase();
+          l = (n === 'en' || n.indexOf('en-') === 0) ? 'en' : 'es';
+        }
+        document.documentElement.setAttribute('lang', l);
+        if (l === 'en') document.title = 'Nivelato - Sign in';
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <script src="./niv-settings.js"></script>
+  <script>window.NivEnvMarkConfig = { signinButtons: ['#btn-google'] };</script>
+  <script src="./niv-envmark.js"></script>
+  <link rel="stylesheet" href="niv-dark.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <style>
+    :root{
+      --bg:#050505; --bg2:#0a0a0b; --card:#0e0e10; --line:#26262b;
+      --ink:#fafafa; --muted:#a8a8b0; --dim:#6f6f77;
+      --amber:#ffffff; --amber2:#e6e6e9;
+      --red:#ff8787; --green:#69db7c; --green-deep:#2b8a3e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* m14: skip link + page landmarks */
+    .skip-link {
+      position: absolute; left: 16px; top: -60px; z-index: 10000;
+      background: var(--amber); color: #141414; padding: 10px 16px;
+      border-radius: 8px; font-weight: 700; font-size: 14px;
+      text-decoration: none; transition: top 0.15s;
+    }
+    .skip-link:focus { top: 12px; }
+    #app-card:focus { outline: none; }
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px; pointer-events: none;
+    }
+    .site-header .site-brand {
+      font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+      font-size: 16px; color: var(--ink);
+    }
+    .site-header .site-brand .adot { color: var(--amber); }
+    .site-header nav { display: flex; gap: 18px; pointer-events: auto; }
+    .site-header nav a { color: var(--muted); font-size: 13px; font-weight: 600; text-decoration: none; }
+    .site-header nav a:hover { color: var(--ink); }
+    /* amber radial glow, same language as the homepage hero */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -140px;
+      right: -140px;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(255,255,255,.07), transparent 65%);
+      pointer-events: none;
+    }
+    .entry-claim { position: fixed; top: 76px; left: 0; right: 0; z-index: 2; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .34em; color: var(--muted); text-transform: uppercase; pointer-events: none; }
+    @media (max-width: 640px) { .entry-claim { display: none; } }
+    /* CoMinVi treatment (HOLOGRAPHIK reference): one central object,
+       huge restraint. A glass pane drawn in SVG lines behind the card,
+       tiny mono labels in the corners. Purely presentational. */
+    .pane-motif { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 0; }
+    .pane-motif svg { width: min(88vmin, 760px); height: auto; opacity: .5; }
+    .corner-label { position: fixed; bottom: 18px; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .3em; color: var(--dim); text-transform: uppercase; pointer-events: none; }
+    .corner-label.left { left: 22px; } .corner-label.right { right: 22px; text-align: right; }
+    @media (max-width: 640px) { .corner-label.right { display: none; } }
+    @media (prefers-reduced-motion: no-preference) { .pane-motif svg { animation: pane-in 1.2s cubic-bezier(.22,1,.36,1) both; } @keyframes pane-in { from { opacity: 0; transform: scale(.985); } to { opacity: .5; transform: scale(1); } } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+      z-index: 1;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
+    }
+    .logo .adot { color: var(--amber); }
+    .tagline {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .exclusivity-note {
+      font-size: 12px;
+      color: var(--green);
+      background: rgba(105,219,124,.07);
+      border: 1px solid rgba(105,219,124,.32);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .geo-note {
+      font-size: 12px;
+      color: var(--amber2);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .geo-note a { color: var(--amber2); }
+    .geo-note button { color: inherit; }
+    .tab-row {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+      /* button reset — tabs are real <button>s for keyboard access */
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+    .tab:hover { color: var(--muted); }
+    .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+    .tab.active.qgi-tab { color: var(--green); border-bottom-color: var(--green); }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input::placeholder { color: var(--dim); }
+    .field input:focus { border-color: var(--amber); }
+    .field input:-webkit-autofill {
+      -webkit-text-fill-color: var(--ink);
+      -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--amber);
+      color: #141414;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--amber2); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary:disabled { background: #3a3a42; color: var(--dim); cursor: not-allowed; }
+    .btn-primary.qgi-btn { background: var(--green-deep); color: #fff; }
+    .btn-primary.qgi-btn:hover { background: #237a36; }
+    .btn-primary.qgi-btn:disabled { background: #3a3a42; color: var(--dim); }
+    .forgot-link { font-size: 13px; color: var(--amber2); text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+    .error-msg {
+      background: rgba(255,135,135,.08);
+      border: 1px solid rgba(255,135,135,.35);
+      color: var(--red);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      line-height: 1.5;
+    }
+    .error-msg.visible { display: block; }
+    .niv-spinner {
+      width: 32px; height: 32px; margin: 32px auto;
+      border: 3px solid var(--line); border-top-color: var(--amber);
+      border-radius: 50%; animation: niv-spin 0.8s linear infinite;
+    }
+    @keyframes niv-spin { to { transform: rotate(360deg); } }
+    body.qgc-theme .niv-spinner { border-color: #55555c; border-top-color: #b9b9c2; }
+    .signup-note {
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 16px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .travel-body {
+      font-size: 14px;
+      color: var(--dim);
+      line-height: 1.6;
+      margin: 0 0 20px;
+      text-align: center;
+    }
+    .lang-toggle {
+      display: block;
+      width: fit-content;
+      margin: 0 0 12px auto;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lang-toggle:hover { color: var(--ink); border-color: var(--dim); }
+    .lang-toggle:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    /* company signin: QGC row on top, details collapsed */
+    .company-single { display: flex; flex-direction: column; gap: 16px; }
+    .company-details { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .company-details-summary { padding: 12px 16px; cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+    .company-details-summary::-webkit-details-marker { display: none; }
+    .company-details-summary::after { content: '›'; font-size: 20px; transition: transform .2s; }
+    .company-details[open] .company-details-summary::after { transform: rotate(90deg); }
+    .company-details-body { padding: 0 16px 16px; }
+    .company-title { font-size: 32px; margin: 0; }
+    @media (min-width: 769px) {
+      .company-details-summary { display: none; }
+      .company-details { border: none; }
+      .company-details-body { padding: 0; }
+    }
+    /* compact: globe icon only on small screens */
+    @media (max-width: 480px) {
+      .lang-toggle { font-size: 0 !important; width: 44px; min-width: 44px; padding: 10px 0; text-align: center; }
+      .lang-toggle::after { content: '\1F310'; font-size: 20px; }
+    }
+    /* Header-row pill: the language toggle lives in the panel header
+       (accounts title row / company-head), right-aligned in-flow. */
+    .accounts-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .accounts-head .accounts-title { margin-bottom: 0; }
+    .accounts-head .lang-toggle, .company-head .lang-toggle { margin: 0 0 0 auto; flex: none; }
+    /* ---- Password-only re-auth view ---- */
+    .reauth-acct {
+      display: flex; align-items: center; gap: 12px;
+      border: 1px solid #2c2c31; border-radius: 14px; padding: 12px 14px;
+      margin-bottom: 18px; background: #1a1a1e;
+    }
+    .reauth-acct .account-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #2c2c31; color: #f2f1ec;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; flex: none;
+    }
+    .reauth-acct .account-meta { display: flex; flex-direction: column; min-width: 0; }
+    .reauth-acct .account-name { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reauth-acct .account-email { font-size: 12px; color: #a7a7b3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-link {
+      display: block; width: 100%; background: none; border: 0; cursor: pointer;
+      color: #1b9aaa; font-size: 13px; font-family: inherit; margin-top: 14px; padding: 8px;
+    }
+    /* ---- Dev options (hidden panel, Benj only) ---- */
+    #dev-badge {
+      position: fixed; top: 12px; left: 12px; z-index: 9990; display: none;
+      background: #1a1a1e; border: 1px solid #55555c; color: #f2f1ec;
+      border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.5px; cursor: pointer; font-family: inherit;
+    }
+    #dev-overlay {
+      position: fixed; inset: 0; z-index: 9999; display: none;
+      background: rgba(0,0,0,0.72); align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #dev-overlay.open { display: flex; }
+    .dev-modal {
+      background: #141416; border: 1px solid #2c2c31; border-radius: 20px;
+      padding: 28px; max-width: 460px; width: 100%; max-height: 88vh; overflow-y: auto;
+      color: #f2f1ec;
+    }
+    .dev-modal h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; }
+    .dev-hint { font-size: 12px; color: #a7a7b3; line-height: 1.6; margin-bottom: 20px; }
+    .dev-card {
+      border: 1px solid #2c2c31; border-radius: 16px; padding: 20px; margin-bottom: 12px;
+      background: #1a1a1e;
+    }
+    .dev-card-title { font-size: 17px; font-weight: 600; line-height: 1.45; margin-bottom: 6px; }
+    .dev-card-sub { font-size: 12px; color: #a7a7b3; margin-bottom: 16px; }
+    .dev-btn {
+      display: block; width: 100%; padding: 13px; border-radius: 999px; font-size: 14px;
+      font-weight: 600; font-family: inherit; cursor: pointer; margin-bottom: 10px;
+      background: transparent; border: 1px solid #55555c; color: #f2f1ec;
+    }
+    .dev-btn.primary { background: #1b9aaa; border-color: #1b9aaa; color: #fff; }
+    .dev-btn:disabled { opacity: 0.45; cursor: default; }
+    .dev-err { font-size: 12px; color: #ff8787; min-height: 16px; margin-top: 4px; }
+    .dev-sec-btn {
+      display: block; width: 100%; padding: 15px; border-radius: 14px; font-size: 15px;
+      font-weight: 500; font-family: inherit; cursor: pointer; margin-bottom: 10px;
+      background: #1a1a1e; border: 1px solid #3a3a40; color: #f2f1ec;
+    }
+    .dev-sec-btn .soon {
+      display: block; font-size: 11px; color: #6c6c76; font-weight: 400; margin-top: 2px;
+    }
+    .dev-sec-body { border: 1px solid #2c2c31; border-radius: 14px; padding: 16px; margin: -2px 0 12px; background: #101012; }
+    .dev-sec-body .dev-desc { font-size: 12px; color: #a7a7b3; margin-bottom: 12px; line-height: 1.5; }
+    .dev-geo-opt {
+      display: block; width: 100%; text-align: left; padding: 11px 14px; border-radius: 10px;
+      background: transparent; border: 1px solid #3a3a40; color: #f2f1ec; font-size: 13px;
+      font-family: inherit; cursor: pointer; margin-bottom: 8px;
+    }
+    .dev-geo-opt.active { border-color: #1b9aaa; color: #7de3f0; }
+    .dev-geo-custom { display: flex; gap: 8px; margin-top: 4px; }
+    .dev-geo-custom input {
+      flex: 1; background: #1a1a1e; border: 1px solid #3a3a40; border-radius: 10px;
+      color: #f2f1ec; padding: 11px 14px; font-size: 13px; font-family: inherit;
+      text-transform: uppercase;
+    }
+    .dev-kv { font-size: 12px; line-height: 1.9; color: #c9c9d4; word-break: break-all; }
+    .dev-kv b { color: #f2f1ec; font-weight: 600; }
+    .dev-doc-item {
+      display: block; width: 100%; text-align: left; padding: 9px 12px; border-radius: 8px;
+      background: transparent; border: 1px solid #2c2c31; color: #7de3f0; font-size: 12px;
+      font-family: ui-monospace, monospace; cursor: pointer; margin-bottom: 6px;
+      word-break: break-all;
+    }
+    .dev-pre {
+      background: #0c0c0e; border: 1px solid #2c2c31; border-radius: 8px; padding: 12px;
+      font-size: 11px; line-height: 1.6; color: #c9c9d4; overflow-x: auto;
+      font-family: ui-monospace, monospace; white-space: pre-wrap; word-break: break-all;
+      max-height: 300px; overflow-y: auto; margin: 8px 0;
+    }
+    .dev-fn-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 4px; border-bottom: 1px solid #222228; font-size: 12px;
+    }
+    .dev-fn-row:last-child { border-bottom: 0; }
+    .dev-fn-name { color: #f2f1ec; font-family: ui-monospace, monospace; }
+    .dev-fn-type { color: #6c6c76; font-size: 11px; }
+    #dev-hold-zone {
+      position: fixed; top: 0; right: 0; width: 64px; height: 64px; z-index: 9000;
+      background: transparent; touch-action: none;
+    }
+    /* ---- QGC "depressing gray" theme ----
+       Applied to <body> whenever QGI mode is active. Everything goes gray:
+       page, card, tabs, inputs, buttons. The QGC logo is stretched
+       fullscreen behind it all (aspect ratio intentionally distorted). */
+    body.qgc-theme { background: #2a2a2e; }
+    body.qgc-theme::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('./qgc-logo.jpg');
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body.qgc-theme::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(20, 20, 22, 0.55);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body.qgc-theme .card {
+      background: #3a3a3e;
+      border-color: #55555c;
+      padding: 24px 26px;
+      /* never push a page-level scrollbar: scroll inside the card instead */
+      max-height: calc(100dvh - 32px);
+      overflow-y: auto;
+    }
+    body.qgc-theme .logo { color: #f2f1ec; }
+    body.qgc-theme .logo .adot { color: #8e8e99; }
+    body.qgc-theme .tagline { color: #b9b9c2; margin-bottom: 18px; }
+    body.qgc-theme .tab-row { border-bottom-color: #55555c; margin-bottom: 18px; }
+    body.qgc-theme .tab { color: #8e8e99; }
+    body.qgc-theme .tab:hover { color: #b9b9c2; }
+    body.qgc-theme .tab.active,
+    body.qgc-theme .tab.active.qgi-tab { color: #e8e8ec; border-bottom-color: #8e8e99; }
+    body.qgc-theme .field label { color: #b9b9c2; }
+    body.qgc-theme .field input {
+      background: #2a2a2e;
+      border-color: #55555c;
+      color: #f2f1ec;
+    }
+    body.qgc-theme .field input::placeholder { color: #6d6d78; }
+    body.qgc-theme .field input:focus { border-color: #8e8e99; }
+    body.qgc-theme .field input:-webkit-autofill {
+      -webkit-text-fill-color: #f2f1ec;
+      -webkit-box-shadow: 0 0 0 1000px #2a2a2e inset;
+    }
+    body.qgc-theme .btn-primary,
+    body.qgc-theme .btn-primary.qgi-btn { background: #63636b; color: #f2f1ec; }
+    body.qgc-theme .btn-primary:hover,
+    body.qgc-theme .btn-primary.qgi-btn:hover { background: #75757e; }
+    body.qgc-theme .btn-primary:disabled,
+    body.qgc-theme .btn-primary.qgi-btn:disabled { background: #2a2a2e; color: #6d6d78; }
+    body.qgc-theme .forgot-link { color: #b9b9c2; }
+    body.qgc-theme .exclusivity-note {
+      color: #d8d8de;
+      background: rgba(255,255,255,.05);
+      border-color: #55555c;
+    }
+    body.qgc-theme .geo-note {
+      color: #d8d8de;
+      background: rgba(255,255,255,.05);
+      border-color: #55555c;
+    }
+    body.qgc-theme .geo-note a,
+    body.qgc-theme .geo-note button { color: #e8e8ec; }
+    body.qgc-theme .signup-note { color: #8e8e99; }
+    body.qgc-theme .travel-body { color: #a7a7b3; }
+    body.qgc-theme .lang-toggle { border-color: #55555c; color: #b9b9c2; }
+    body.qgc-theme .lang-toggle:hover { color: #f2f1ec; border-color: #8e8e99; }
+    body.qgc-theme .lang-toggle:focus-visible { outline-color: #8e8e99; }
+    body.qgc-theme .error-msg {
+      background: rgba(255,255,255,.05);
+      border-color: #77777f;
+      color: #f2f1ec;
+    }
+    /* ---- Split layout: brand panel + accounts/form panel (mockup) ---- */
+    .card.split-card { max-width: 780px; }
+    .split { display: flex; gap: 24px; align-items: stretch; }
+    .brand-panel {
+      flex: 0 0 280px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px 24px;
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-panel .logo { font-size: 32px; }
+    .brand-panel .tagline { margin-bottom: 0; }
+    .brand-logo-box {
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg);
+      aspect-ratio: 4 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .main-panel { flex: 1; min-width: 0; }
+    /* Company select: the companies list is a scroll area and the panel's
+       trailing action (Add personal account) stays pinned to the bottom. */
+    .main-panel.pinned-panel { display: flex; flex-direction: column; min-height: 0; }
+    #company-select-list.scroll-region {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .pinned-action { flex: none; margin-top: 16px; margin-bottom: 0; }
+    .accounts-section { margin-bottom: 20px; }
+    .accounts-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 12px;
+    }
+    .account-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 16px 10px 10px;
+      margin-bottom: 10px;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      transition: border-color 0.15s;
+    }
+    .account-pill:last-child { margin-bottom: 0; }
+    .account-pill:hover { border-color: var(--dim); }
+    .account-pill:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    .account-add {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 16px 10px 10px;
+      margin-bottom: 0;
+      background: transparent;
+      border: 1px dashed var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--dim);
+      text-align: left;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .account-add:hover { border-color: var(--dim); color: var(--ink); }
+    .account-add:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    .account-add-icon {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--dim);
+    }
+    .account-add:hover .account-add-icon { border-color: var(--dim); color: var(--ink); }
+    .account-avatar {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--line);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .account-avatar-logo { overflow: hidden; background: #fff; }
+    .account-avatar-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .qgc-only-notice {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--ink);
+      margin: 14px 0 18px;
+    }
+    .account-meta { min-width: 0; display: flex; flex-direction: column; }
+    .account-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .account-kind {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @media (max-width: 680px) {
+      .split { flex-direction: column; }
+      .brand-panel { flex: none; }
+      .brand-logo-box { aspect-ratio: 16 / 8; }
+    }
+    /* QGC gray theme for the split layout */
+    body.qgc-theme .brand-panel { background: #2a2a2e; border-color: #55555c; }
+    body.qgc-theme .brand-logo-box { background: #2a2a2e; border-color: #55555c; }
+    body.qgc-theme .accounts-title { color: #b9b9c2; }
+    body.qgc-theme .account-pill { background: #2a2a2e; border-color: #55555c; }
+    body.qgc-theme .account-pill:hover { border-color: #8e8e99; }
+    body.qgc-theme .account-pill:focus-visible { outline-color: #8e8e99; }
+    body.qgc-theme .account-avatar { background: #55555c; color: #f2f1ec; }
+    body.qgc-theme .account-add { border-color: #55555c; color: #b9b9c2; }
+    body.qgc-theme .account-add:hover { border-color: #8e8e99; color: #f2f1ec; }
+    body.qgc-theme .account-add:focus-visible { outline-color: #8e8e99; }
+    body.qgc-theme .account-add-icon { border-color: #55555c; color: #b9b9c2; }
+    body.qgc-theme .account-add:hover .account-add-icon { border-color: #8e8e99; color: #f2f1ec; }
+    body.qgc-theme .account-name { color: #f2f1ec; }
+    body.qgc-theme .account-kind { color: #b9b9c2; }
+    body.qgc-theme .qgc-only-notice { color: #f2f1ec; }
+    /* Company-branded signin view */
+    .company-employee-notice {
+      margin-top: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+    .company-inquiry {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .company-travel-notice {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--amber2);
+    }
+    .company-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .company-head .back-btn { position: static; flex: none; }
+    .company-head .account-pill { flex: 1; min-width: 0; margin-bottom: 0; cursor: default; }
+    .company-head .account-pill .account-meta { min-width: 0; }
+    .company-head .account-pill .account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .company-head .account-pill:hover { border-color: var(--line); }
+    body.qgc-theme .company-head .account-pill:hover { border-color: #55555c; }
+    body.qgc-theme .company-employee-notice { color: #f2f1ec; }
+    body.qgc-theme .company-inquiry { color: #b9b9c2; }
+    body.qgc-theme .company-travel-notice { color: #f5b83d; }
+    /* View-transition slide animations (navigation only, never on re-render) */
+    @keyframes niv-slide-fwd {
+      from { transform: translateX(48px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes niv-slide-back {
+      from { transform: translateX(-48px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .niv-anim-fwd { animation: niv-slide-fwd 280ms ease; }
+    .niv-anim-back { animation: niv-slide-back 280ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+      .niv-anim-fwd, .niv-anim-back { animation: none; }
+    }
+    /* Add-account view: Google outlined pill, "or" separator, back chevron */
+    .or-sep {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: 13px; margin: 18px 0;
+    }
+    .or-sep::before, .or-sep::after {
+      content: ""; flex: 1; height: 1px; background: #2c2c31;
+    }
+    .btn-google {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 15px 20px; border-radius: 999px;
+      background: transparent; border: 1px solid #3a3a42; color: var(--ink);
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: border-color .15s, background .15s;
+    }
+    .btn-google:hover { border-color: var(--amber); background: rgba(255,255,255,.03); }
+    .btn-google:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-google svg { flex: none; }
+    .back-btn {
+      position: absolute; top: 20px; left: 20px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: transparent; border: 1px solid #2c2c31; color: var(--ink);
+      font-size: 20px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; padding: 0 0 2px;
+    }
+    .back-btn:hover { border-color: var(--amber); }
+    .card { position: relative; }
+    .cantadd-row {
+      display: flex; gap: 24px; align-items: center; justify-content: space-between;
+      padding-top: 28px;
+    }
+    .cantadd-row .btn-google { width: auto; flex: none; padding: 14px 28px; }
+    .cantadd-title { font-size: 30px; font-weight: 700; margin: 0 0 8px; color: var(--ink); }
+    .cantadd-msg { color: var(--muted); font-size: 15px; line-height: 1.6; margin: 0; }
+    @media (max-width: 560px) {
+      .cantadd-row { flex-direction: column; align-items: stretch; text-align: center; }
+      .cantadd-row .btn-google { width: 100%; }
+    }
+    body.qgc-theme .or-sep { color: #8e8e99; }
+    body.qgc-theme .or-sep::before, body.qgc-theme .or-sep::after { background: #55555c; }
+    body.qgc-theme .btn-google { border-color: #55555c; color: #f2f1ec; }
+    body.qgc-theme .btn-google:hover { border-color: #8e8e99; background: rgba(255,255,255,.04); }
+    body.qgc-theme .back-btn { border-color: #55555c; color: #f2f1ec; }
+    body.qgc-theme .back-btn:hover { border-color: #8e8e99; }
+    body.qgc-theme .cantadd-title { color: #f2f1ec; }
+    body.qgc-theme .cantadd-msg { color: #b9b9c2; }
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card { padding: 32px 22px; }
+    }
+    /* ---- Liquid Glass (Oct 2026 pass) ----
+       Apple Liquid Glass principles translated to CSS: the controls
+       and navigation form one functional layer that floats above the
+       content; the content (here, the mountain photo) lives underneath
+       and infuses the material. Judicious color in the control layer:
+       monochrome glass, so the content stays in focus. Glass is
+       translucency + backdrop blur/saturation + a specular top-edge
+       highlight + a soft inner glow, and it sits on interactive
+       surfaces only: the sign-in card, the brand panel inside it,
+       account pills, and the floating header pills. Never over body
+       text. Presentational only; no markup logic changed. */
+    .mtn-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .mtn-backdrop img {
+      width: 100%; height: 100%; display: block;
+      object-fit: cover; object-position: center 30%;
+      filter: grayscale(1) contrast(1.07) brightness(.62);
+    }
+    .mtn-backdrop::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(5,5,5,.52), rgba(5,5,5,.30) 42%, rgba(5,5,5,.80));
+    }
+    body.qgc-theme .mtn-backdrop { display: none; }
+    body:not(.qgc-theme) .card {
+      background: linear-gradient(140deg, rgba(255,255,255,.14), rgba(255,255,255,.05) 52%, rgba(255,255,255,.09));
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 20px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 0 rgba(255,255,255,.05), inset 1px 0 0 rgba(255,255,255,.07), 0 24px 60px rgba(0,0,0,.55);
+    }
+    body:not(.qgc-theme) .brand-panel {
+      background: rgba(255,255,255,.055);
+      border-color: rgba(255,255,255,.15);
+      border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    body:not(.qgc-theme) .account-pill {
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    body:not(.qgc-theme) .field input { background: rgba(5,5,6,.42); border-color: rgba(255,255,255,.20); }
+    .site-header .site-brand, .site-header nav {
+      background: rgba(12,12,14,.34);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 10px 26px rgba(0,0,0,.35);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      backdrop-filter: blur(14px) saturate(150%);
+    }
+    .site-header .site-brand { padding: 8px 16px; }
+    .site-header nav { padding: 8px 16px; align-items: center; }
+    /* Landmarks translation: glass elements form one defined group
+       with shared tokens, and grouped glass settles together, so the
+       group's state changes animate as one material. The header is
+       two glass clusters (brand, nav), not one blob, and the fixed
+       glass header lets page content scroll underneath it. */
+    body:not(.qgc-theme) .card, body:not(.qgc-theme) .brand-panel,
+    body:not(.qgc-theme) .account-pill,
+    .site-header .site-brand, .site-header nav {
+      transition: background-color .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .photo-credit {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: .14em; color: var(--dim); white-space: nowrap;
+    }
+    .photo-credit a { color: var(--muted); text-decoration: none; pointer-events: auto; }
+    .photo-credit a:hover { color: var(--ink); }
+    @media (max-width: 640px) { .photo-credit { display: none; } }
+    /* Fallback: no backdrop-filter support, the glass goes near-opaque
+       so every surface stays fully readable over the photo. */
+    @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+      body:not(.qgc-theme) .card { background: linear-gradient(140deg, rgba(30,30,34,.97), rgba(14,14,16,.98)); }
+      body:not(.qgc-theme) .brand-panel { background: rgba(20,20,23,.96); }
+      body:not(.qgc-theme) .field input { background: rgba(5,5,6,.9); }
+      .site-header .site-brand, .site-header nav { background: rgba(12,12,14,.92); }
+    }
+
+/* ---- Variant B entry header (EDOLUS concept, chosen Oct 2026) ----
+   The two glass header pills become one centered lockup over the
+   mountain backdrop: Breakout outline mark above the wide wordmark,
+   a minimal menu glyph at the right, and a top-only scrim. The
+   wordmark family is held in one token. Anybody is set at weight
+   900 and 150% width; .08em spacing keeps it airy without making
+   the expanded letterforms weak. */
+@font-face{font-family:'Anybody';src:url('./assets/fonts/Anybody-Variable.ttf') format('truetype');font-weight:100 900;font-stretch:50% 150%;font-display:swap}
+.site-header{--wordmark-font:'Anybody','Archivo Black',system-ui,sans-serif;--wordmark-spacing:.08em;height:118px;padding:22px 20px 10px;align-items:flex-start;justify-content:center;background:transparent;pointer-events:none}
+.site-header::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.46),rgba(0,0,0,0) 88%);pointer-events:none}
+.site-header .variant-lockup{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:9px;max-width:calc(100vw - 112px);color:#fff;text-decoration:none;pointer-events:auto}
+.site-header .variant-mark{width:34px;height:34px;color:#fff;flex:none}
+.site-header .variant-mark svg{display:block;width:100%;height:100%}
+.site-header .variant-wordmark{font-family:var(--wordmark-font);font-weight:900;font-stretch:150%;font-size:clamp(.92rem,2.2vw,1.18rem);line-height:1;letter-spacing:var(--wordmark-spacing);text-indent:var(--wordmark-spacing);text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 14px rgba(0,0,0,.35)}
+.site-header .variant-menu-button{position:absolute;top:24px;right:20px;z-index:2;width:44px;height:44px;padding:0 10px;border:0;background:transparent;color:#fff;display:flex;align-items:flex-end;justify-content:center;gap:3px;cursor:pointer;pointer-events:auto}
+.site-header .variant-menu-button i{display:block;width:2.5px;border-radius:2px;background:currentColor}
+.variant-menu{position:fixed;inset:0;z-index:80;background:rgba(3,3,4,.96);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s;overflow-y:auto}
+body.variant-menu-open .variant-menu{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .25s ease}
+.variant-menu-inner{width:min(440px,calc(100vw - 48px));margin:0 auto;padding:126px 0 44px;display:flex;flex-direction:column;gap:2px}
+.variant-menu-inner nav{display:flex;flex-direction:column;gap:2px}
+.variant-menu-inner nav a{min-height:54px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,.10);color:#fff;text-decoration:none;font-size:1.08rem;font-weight:600;text-align:center}
+.variant-menu-inner nav a:hover,.variant-menu-inner nav a:focus-visible{background:rgba(255,255,255,.06)}
+.variant-menu-close{position:absolute;top:24px;right:20px;width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:transparent;color:#fff;font-size:1.35rem;line-height:1;cursor:pointer}
+.entry-claim{top:128px}
+@media(max-width:640px){.site-header{height:108px;padding:18px 16px 8px}.site-header .variant-mark{width:30px;height:30px}.site-header .variant-wordmark{font-size:.88rem}.site-header .variant-menu-button{top:18px;right:12px}.variant-menu-close{top:18px;right:12px}.variant-menu-inner{padding-top:112px}}
+@media(prefers-reduced-motion:reduce){.variant-menu{transition:none}}
+</style>
+  <!-- dear source-viewer: the measurements are leveled. the whimsy is load-bearing. 🦀 -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</head>
+<body>
+<div class="mtn-backdrop" aria-hidden="true"><img src="./assets/mountains-oeschinensee.jpg" alt="" /></div>
+<div class="entry-claim" aria-hidden="true">Field measurement, reinvented</div>
+<div class="pane-motif" aria-hidden="true"><svg viewBox="0 0 600 600" fill="none" stroke="#fafafa" stroke-width="1">
+<rect x="110" y="90" width="380" height="420" stroke-opacity="0.55"/>
+<rect x="128" y="108" width="344" height="384" stroke-opacity="0.22"/>
+<text x="300" y="38" text-anchor="middle" fill="#6f6f77" stroke="none" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="3">[ WIDTH ]</text>
+<line x1="110" y1="52" x2="490" y2="52" stroke-opacity="0.7"/><line x1="110" y1="42" x2="110" y2="62" stroke-opacity="0.7"/><line x1="490" y1="42" x2="490" y2="62" stroke-opacity="0.7"/>
+<text x="30" y="300" text-anchor="middle" transform="rotate(-90 30 300)" fill="#6f6f77" stroke="none" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="3">[ HEIGHT ]</text>
+<line x1="52" y1="90" x2="52" y2="510" stroke-opacity="0.7"/><line x1="42" y1="90" x2="62" y2="90" stroke-opacity="0.7"/><line x1="42" y1="510" x2="62" y2="510" stroke-opacity="0.7"/>
+<line x1="110" y1="510" x2="300" y2="300" stroke-opacity="0.3"/><circle cx="300" cy="300" r="3" fill="#fafafa" fill-opacity="0.6" stroke="none"/>
+</svg></div>
+<div class="corner-label left" aria-hidden="true">[ Nivelato Labs ]</div>
+<div class="corner-label right" aria-hidden="true">[ Offset measuring software ]</div>
+<div class="photo-credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:20190725_Oeschinensee-Panorama,_Kandersteg_(06540-42_stitch).jpg" target="_blank" rel="noopener noreferrer">© Günter Seggebäing, Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a></div>
+<!-- M17: the default (external) form is STATIC HTML — first paint never waits
+     on any network (module imports or the ipapi.co geo lookup). The module
+     below hydrates it, then swaps the flow UI in the background if geo says
+     otherwise. -->
+<a class="skip-link" href="#app-card" data-i18n="skip_to_content">Saltar al contenido principal</a>
+<header class="site-header">
+  <a class="variant-lockup" href="../index.html" aria-label="Nivelato Labs">
+    <span class="variant-mark"><svg viewBox="-5 -5 110 110" fill="none" stroke="currentColor" stroke-width="6.5" aria-hidden="true" focusable="false"><path d="M55 20 H20 V84 H84 V43" stroke-linejoin="miter"/><path d="M80 -1 L84.5 13.5 L99 18 L84.5 22.5 L80 37 L75.5 22.5 L61 18 L75.5 13.5 Z" stroke-linejoin="bevel"/></svg></span>
+    <span class="variant-wordmark">Nivelato Labs</span>
+  </a>
+  <button class="variant-menu-button" type="button" onclick="document.body.classList.add('variant-menu-open');this.setAttribute('aria-expanded','true')" aria-label="Open menu" aria-expanded="false" aria-controls="login-variant-menu"><i style="height:6px"></i><i style="height:12px"></i><i style="height:8px"></i><i style="height:12px"></i></button>
+</header>
+<div class="variant-menu" id="login-variant-menu">
+  <button class="variant-menu-close" type="button" onclick="document.body.classList.remove('variant-menu-open');document.querySelector('.variant-menu-button').setAttribute('aria-expanded','false')" aria-label="Close menu">×</button>
+  <div class="variant-menu-inner">
+    <nav data-i18n-aria="site_nav_label" aria-label="Navegación principal">
+      <a href="../index.html" onclick="document.body.classList.remove('variant-menu-open');document.querySelector('.variant-menu-button').setAttribute('aria-expanded','false')" data-i18n="nav_home">Inicio</a>
+      <a href="./ayuda.html" onclick="document.body.classList.remove('variant-menu-open');document.querySelector('.variant-menu-button').setAttribute('aria-expanded','false')" data-i18n="nav_help">Ayuda</a>
+    </nav>
+  </div>
+</div>
+<main class="card split-card" id="app-card" tabindex="-1">
+  <div class="split">
+    <div class="brand-panel">
+      <h1 class="logo">Nivelato<span class="adot">.</span></h1>
+      <div class="tagline" data-i18n="tagline">Mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco.</div>
+      <div class="brand-logo-box"><img src="./icon-192.png" alt="Nivelato" /></div>
+    </div>
+    <div class="main-panel" data-envmark-card>
+      <div class="accounts-section" id="accounts-section" style="display:none">
+        <div class="accounts-head"><div class="accounts-title" data-i18n="used_accounts">Cuentas usadas</div><button type="button" id="lang-toggle" class="lang-toggle" aria-label="Switch to English">Select language</button></div>
+        <div id="accounts-list"><button type="button" class="account-add" data-add-account><span class="account-add-icon" aria-hidden="true">+</span><span data-i18n="add_another_account">Añadir cuenta personal</span></button></div>
+      </div>
+
+  <div id="form-login">
+    <form id="login-form" autocomplete="on" onsubmit="return false">
+      <div class="field">
+        <label for="login-email" data-i18n="label_email">Correo electrónico</label>
+        <input type="email" id="login-email" name="email" data-i18n-ph="ph_email" placeholder="correo@taller.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="login-pass" data-i18n="label_password">Contraseña</label>
+        <input type="password" id="login-pass" name="password" data-i18n-ph="ph_password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="btn-primary" id="btn-login" type="submit" data-i18n="btn_login">Entrar</button>
+    </form>
+    <div style="text-align:center;margin-top:10px;"><a href="#" id="forgot-link" class="forgot-link" data-i18n="forgot">¿Olvidaste tu contraseña?</a></div>
+    <div class="error-msg" id="login-error" role="alert"></div>
+  </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ---- Nivelato login i18n (classic script — zero network dependencies) ----
+  // speaks two languages and judges your browser in both
+  // Dictionary + language state live here so the language toggle and the tab
+  // fallback work even before the Firebase ES module boots. The module
+  // reuses window.nivT / window.setLang / window.nivApplyLang for every
+  // string it builds dynamically.
+  (function () {
+    var DICT = {
+      es: {
+        page_title: 'Nivelato - Iniciar sesión',
+        tagline: 'Mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco.',
+        tagline_qgi: 'Nivelato, exclusivo de Quality Glass en Puerto Rico',
+        exclusivity_note_html: 'En Puerto Rico, Nivelato es de uso <b>exclusivo de Quality Glass</b>. El registro es solo para empleados.',
+        tablist_label: 'Iniciar sesión o solicitar acceso',
+        tab_login: 'Iniciar sesión',
+        tab_signup: 'Solicitar acceso',
+        used_accounts: 'Cuentas usadas',
+        personal_account: 'Añadir cuenta personal',
+        signin_with: 'Entrar con...',
+        select_language: 'Seleccionar idioma',
+        change_language: 'Cambiar idioma',
+        company_details: 'Detalles de la empresa',
+        qgc_only_msg: 'Solo puedes iniciar sesión en Quality Glazing Contractors ya que estás en Puerto Rico. También puedes usar una cuenta personal',
+        tagline_qgc_brand: 'Mediciones de campo, niveladas, para todo panel que tiene que caber en un hueco.',
+        account_kind_qgc: 'Quality Glass - Trabajo',
+        account_kind_work: 'Trabajo',
+        account_kind_personal: 'Personal',
+        add_another_account: 'Añadir cuenta personal',
+        add_account_title: 'Añadir otra cuenta',
+        add_account_sub: 'Añade otra cuenta personal o de empresa.',
+        add_account_submit: 'Añadir cuenta',
+        reauth_title: 'Bienvenido de nuevo',
+        reauth_sub: 'Ingresa tu contraseña para continuar.',
+        reauth_submit: 'Iniciar sesión',
+        reauth_switch: 'Usar otra cuenta',
+        signin_google: 'Iniciar sesión con Google',
+        or_sep: 'o',
+        cant_add_title: 'No se puede añadir la cuenta',
+        cant_add_msg: 'En Puerto Rico solo QGC puede usar el Panel y la app web',
+        go_back: 'Volver',
+        join_company: 'Unirse a una empresa',
+        choose_company: 'Añadir una cuenta de empresa',
+        or_signin_another: 'O inicia sesión en otra empresa',
+        company_not_found: 'Empresa no encontrada. Solo las empresas aprobadas aparecen aquí.',
+        company_domain_ph: 'empresa.com',
+        find_company: 'Buscar empresa',
+        nearby: 'Cercanas',
+        field_required: 'Este campo es obligatorio.',
+        outside_pr_notice: 'No se te ha detectado dentro de PR, puedes iniciar sesión para recibir un enlace y usar Nivelato hasta 30 días fuera de PR.',
+        label_email: 'Correo electrónico',
+        label_password: 'Contraseña',
+        label_name: 'Nombre completo',
+        label_shop: 'Nombre del taller',
+        label_empcode_html: 'Código de empleado <span style="color:#868e96;font-weight:400">(te lo da tu supervisor)</span>',
+        ph_email: 'correo@taller.com',
+        ph_password: '••••••••',
+        ph_name: 'Juan Pérez',
+        ph_pass_min: 'Mínimo 6 caracteres',
+        ph_shop: 'Vidriería Ejemplo',
+        ph_empcode: 'ABC123',
+        btn_login: 'Entrar',
+        btn_login_busy: 'Entrando...',
+        btn_signup: 'Solicitar acceso',
+        btn_signup_busy: 'Creando cuenta...',
+        forgot: '¿Olvidaste tu contraseña?',
+        signup_note: 'Tu solicitud será revisada. Te avisaremos cuando tengas acceso.',
+        signup_note_qgi_html: 'Tu solicitud será revisada por <b>Quality Glass</b>. Te avisaremos cuando tengas acceso.',
+        geo_note: 'No pudimos detectar tu ubicación; estás viendo la versión general de Nivelato.',
+        pr_note_1: 'En Puerto Rico, el uso empresarial de Nivelato es exclusivo para empleados de Quality Glass. ',
+        pr_note_2: 'Los demás pueden usar la app gratuita: ',
+        pr_note_link: 'Descargar en Google Play',
+        profile_note: 'No encontramos tu perfil de usuario. Vuelve a iniciar sesión para repararlo.',
+        save_title: 'Sesión iniciada',
+        save_q: '¿Guardar la sesión en este dispositivo?',
+        save_yes: 'Guardar sesión',
+        save_no: 'Solo esta vez',
+        pending_title: 'Cuenta creada',
+        pending_body: 'Tu cuenta está pendiente de aprobación por el dueño del taller. Te avisarán cuando tengas acceso.',
+        pending_logout: 'Cerrar sesión',
+        forgot_prompt: 'Escribe tu correo para enviarte el enlace:',
+        forgot_sent: 'Revisa tu correo, te enviamos el enlace para restablecer tu contraseña.',
+        forgot_failed: 'No se pudo enviar el correo: ',
+        forgot_unknown: 'error desconocido',
+        sso_failed: 'No se pudo completar el inicio de sesión. Intenta de nuevo.',
+        fs_fail: '¡Auth OK pero Firestore falló!\n\nError: ',
+        fs_fail_uid: '\n\nTu UID: ',
+        fs_fail_rules: '\n\nRevisa las Rules en Firebase Console.',
+        boot_a: 'El inicio de sesión está tardando más de lo normal (¿conexión lenta?). Puedes esperar o ',
+        boot_reload: 'recargar la página',
+        boot_b: '.',
+        err_invalid_email: 'Correo electrónico inválido.',
+        err_user_not_found: 'No existe una cuenta con ese correo.',
+        err_wrong_password: 'Contraseña incorrecta.',
+        err_invalid_credential: 'Correo o contraseña incorrectos.',
+        err_missing_password: 'Ingresa tu contraseña. Si usaste autocompletado, escríbela manualmente.',
+        err_missing_email: 'Ingresa tu correo electrónico.',
+        err_email_in_use: 'Ya existe una cuenta con ese correo.',
+        err_weak_password: 'La contraseña debe tener al menos 6 caracteres.',
+        err_too_many: 'Demasiados intentos. Intenta más tarde.',
+        err_missing_name: 'Ingresa tu nombre completo.',
+        err_missing_orgname: 'Ingresa el nombre del taller.',
+        err_missing_code: 'Ingresa el código de empleado.',
+        err_invalid_code: 'Código inválido. Verifica con tu supervisor.',
+        travel_title: 'Acceso de viaje',
+        travel_body: 'Parece que estás fuera de Puerto Rico. Te enviamos un enlace de verificación a tu correo registrado para activar el acceso por 30 días.',
+        travel_send: 'Enviar enlace',
+        travel_sending: 'Enviando...',
+        travel_sent_title: 'Enlace enviado',
+        travel_sent_body: 'Revisa tu correo y abre el enlace en este dispositivo para activar tu acceso por 30 días.',
+        travel_back: 'Volver al inicio de sesión',
+        travel_err_email: 'Ingresa un correo válido.',
+        travel_err_send: 'No pudimos enviar el enlace. Intenta de nuevo.',
+        travel_err_link: 'Ese enlace no es válido o ya expiró. Solicita uno nuevo.',
+        travel_err_notimpl: 'La verificación de viaje aún no está disponible.',
+        skip_to_content: 'Saltar al contenido principal',
+        site_nav_label: 'Navegación principal',
+        nav_home: 'Inicio',
+        nav_help: 'Ayuda',
+        aria_switch_to_en: 'Cambiar a inglés',
+        aria_switch_to_es: 'Cambiar a español',
+        loading_label: 'Cargando',
+        employee_notice_qgc: 'SOLO PARA EMPLEADOS DE QUALITY GLAZING CONTRACTORS. Si no sabe su usuario o perdió su contraseña, contacte a su administrador.',
+        dev_title: 'Opciones de desarrollo',
+        dev_hint_html: 'Pulsa Ctrl+Alt+D para revertir todos los cambios y cerrar, o Ctrl+Alt+Shift+H para ocultar.<br>Los ajustes se guardan en el navegador. Algunos ajustes pueden cambiar los datos del backend.',
+        dev_gate_title: 'Inicia sesión con Google en una cuenta inscrita en las pruebas cerradas para continuar',
+        dev_gate_sub: 'Por seguridad, este paso es obligatorio',
+        dev_regional: 'Ajustes regionales',
+        dev_regional_desc: 'Cambia el país detectado para la interfaz con restricción geográfica (aviso de PR, modo QGC). Se aplica al recargar.',
+        dev_custom_country: 'Personalizado (ej. CA)',
+        dev_set: 'Establecer',
+        dev_database: 'Base de datos',
+        dev_database_desc: 'Lo que la cuenta con sesión iniciada puede ver. Las lecturas pasan por las reglas de seguridad, así que esta es exactamente la vista que la app tiene de la base de datos.',
+        dev_loading: 'Cargando…',
+        dev_db_path_ph: 'ruta de la colección (ej. users)',
+        dev_db_path_aria: 'Ruta de la colección',
+        dev_browse: 'Explorar',
+        dev_ui: 'Interfaz',
+        dev_ui_desc: 'Previsualiza la página de inicio de sesión como una empresa específica: su marca, su texto de inicio de sesión y sus funciones. Se aplica al recargar.',
+        dev_backend: 'Backend',
+        dev_backend_desc: 'Información del proyecto y estado de Cloud Functions (el inventario viene del servidor, así que siempre coincide con lo desplegado).',
+        dev_ping_backend: 'Probar el backend',
+        dev_not_enrolled: 'Esta cuenta no está inscrita en las pruebas cerradas.',
+        dev_signin_failed: 'No se pudo iniciar sesión',
+        dev_try_again_suffix: '. Intenta de nuevo.',
+        dev_geo_auto: 'Automático (detectar)',
+        dev_geo_us: 'Estados Unidos',
+        dev_not_signed_in_html: '<b>Sin sesión iniciada</b> en esta página. El explorador de abajo sigue funcionando para las colecciones públicas.',
+        dev_no_user_doc: 'sin documento users/{uid}',
+        dev_read_failed: 'la lectura falló',
+        dev_loaded_below: 'cargado abajo',
+        dev_no_docs: 'Sin documentos (o no se pueden leer).',
+        dev_docs_suffix: ' documento(s), toca para ver:',
+        dev_read_failed_prefix: 'La lectura falló: ',
+        dev_browse_failed_prefix: 'La exploración falló: ',
+        dev_browse_failed_suffix: '. Es posible que la ruta no exista o que las reglas lo nieguen.',
+        dev_company_auto: 'Automático (sin forzar)',
+        dev_company_note: 'Fuerza la pantalla de inicio de sesión de la empresa al cargar, como si visitaras su enlace /company/.',
+        dev_label_project: 'proyecto',
+        dev_label_functions_region: 'región de funciones',
+        dev_label_auth_domain: 'dominio de autenticación',
+        dev_label_server_time: 'hora del servidor',
+        dev_pinging: 'Probando…',
+        dev_google_needed: 'Primero necesitas iniciar sesión con Google.',
+        dev_signin_cancelled: 'Inicio de sesión cancelado.',
+        dev_ping_failed_prefix: 'La prueba falló: ',
+        dev_ms_roundtrip: 'ms de ida y vuelta',
+        lang_toggle_to_en: 'Switch to English',
+        lang_toggle_to_es: 'Cambiar a español'
+      },
+      en: {
+        page_title: 'Nivelato - Sign in',
+        tagline: 'Field measurements, leveled, for any panel that has to fit an opening.',
+        tagline_qgi: 'Nivelato, exclusive to Quality Glass in Puerto Rico',
+        exclusivity_note_html: 'In Puerto Rico, Nivelato is for <b>Quality Glass</b> exclusive use. Registration is for employees only.',
+        tablist_label: 'Sign in or request access',
+        tab_login: 'Sign in',
+        tab_signup: 'Request access',
+        used_accounts: 'Used accounts',
+        personal_account: 'Add personal account',
+        signin_with: 'Sign in with...',
+        select_language: 'Select language',
+        change_language: 'Change language',
+        company_details: 'Company Details',
+        qgc_only_msg: 'You may only sign into Quality Glazing Contractors since you are in Puerto Rico. However you can also use a personal account',
+        tagline_qgc_brand: 'Field measurements, leveled, for any panel that has to fit an opening.',
+        account_kind_qgc: 'Quality Glass - Work',
+        account_kind_work: 'Work',
+        account_kind_personal: 'Personal',
+        add_another_account: 'Add personal account',
+        add_account_title: 'Add another account',
+        add_account_sub: 'Add another personal or company account.',
+        add_account_submit: 'Add account',
+        reauth_title: 'Welcome back',
+        reauth_sub: 'Enter your password to continue.',
+        reauth_submit: 'Sign in',
+        reauth_switch: 'Use a different account',
+        signin_google: 'Sign in with Google',
+        or_sep: 'or',
+        cant_add_title: 'Unable to add account',
+        cant_add_msg: 'In Puerto Rico only QGC can use Dashboard and Web app',
+        go_back: 'Go back',
+        join_company: 'Join a company',
+        choose_company: 'Add a company account',
+        or_signin_another: 'Or sign into another company',
+        company_not_found: 'Company not found. Only approved companies are listed here.',
+        company_domain_ph: 'company.com',
+        find_company: 'Find company',
+        nearby: 'Nearby',
+        field_required: 'This field is required.',
+        outside_pr_notice: 'You have not been detected within PR, you may sign in to receive a link to use Nivelato for up to 30 days outside PR',
+        label_email: 'Email',
+        label_password: 'Password',
+        label_name: 'Full name',
+        label_shop: 'Shop name',
+        label_empcode_html: 'Employee code <span style="color:#868e96;font-weight:400">(ask your supervisor for it)</span>',
+        ph_email: 'email@shop.com',
+        ph_password: '••••••••',
+        ph_name: 'John Smith',
+        ph_pass_min: 'Minimum 6 characters',
+        ph_shop: 'Example Glass Shop',
+        ph_empcode: 'ABC123',
+        btn_login: 'Sign in',
+        btn_login_busy: 'Signing in...',
+        btn_signup: 'Request access',
+        btn_signup_busy: 'Creating account...',
+        forgot: 'Forgot your password?',
+        signup_note: 'Your request will be reviewed. We will let you know when you have access.',
+        signup_note_qgi_html: 'Your request will be reviewed by <b>Quality Glass</b>. We will let you know when you have access.',
+        geo_note: 'We could not detect your location; you are seeing the general version of Nivelato.',
+        pr_note_1: 'In Puerto Rico, business use of Nivelato is exclusive to Quality Glass employees. ',
+        pr_note_2: 'Everyone else can use the free app: ',
+        pr_note_link: 'Download on Google Play',
+        profile_note: 'We could not find your user profile. Sign in again to fix it.',
+        save_title: 'Signed in',
+        save_q: 'Stay signed in on this device?',
+        save_yes: 'Stay signed in',
+        save_no: 'Just this once',
+        pending_title: 'Account created',
+        pending_body: 'Your account is pending approval by the shop owner. They will let you know when you have access.',
+        pending_logout: 'Sign out',
+        forgot_prompt: 'Enter your email to receive the link:',
+        forgot_sent: 'Check your email, we sent you the link to reset your password.',
+        forgot_failed: 'Could not send the email: ',
+        forgot_unknown: 'unknown error',
+        sso_failed: 'Could not complete sign-in. Try again.',
+        fs_fail: 'Auth OK but Firestore failed!\n\nError: ',
+        fs_fail_uid: '\n\nYour UID: ',
+        fs_fail_rules: '\n\nCheck the Rules in Firebase Console.',
+        boot_a: 'Sign-in is taking longer than usual (slow connection?). You can wait or ',
+        boot_reload: 'reload the page',
+        boot_b: '.',
+        err_invalid_email: 'Invalid email address.',
+        err_user_not_found: 'No account exists with that email.',
+        err_wrong_password: 'Incorrect password.',
+        err_invalid_credential: 'Incorrect email or password.',
+        err_missing_password: 'Enter your password. If you used autocomplete, type it manually.',
+        err_missing_email: 'Enter your email address.',
+        err_email_in_use: 'An account with that email already exists.',
+        err_weak_password: 'Password must be at least 6 characters.',
+        err_too_many: 'Too many attempts. Try again later.',
+        err_missing_name: 'Enter your full name.',
+        err_missing_orgname: 'Enter the shop name.',
+        err_missing_code: 'Enter the employee code.',
+        err_invalid_code: 'Invalid code. Check with your supervisor.',
+        travel_title: 'Travel access',
+        travel_body: 'It looks like you are outside Puerto Rico. We will send a verification link to your registered email to activate access for 30 days.',
+        travel_send: 'Send link',
+        travel_sending: 'Sending...',
+        travel_sent_title: 'Link sent',
+        travel_sent_body: 'Check your email and open the link on this device to activate your 30-day travel access.',
+        travel_back: 'Back to sign in',
+        travel_err_email: 'Enter a valid email.',
+        travel_err_send: 'We could not send the link. Try again.',
+        travel_err_link: 'That link is invalid or expired. Request a new one.',
+        travel_err_notimpl: 'Travel verification is not available yet.',
+        skip_to_content: 'Skip to main content',
+        site_nav_label: 'Main navigation',
+        nav_home: 'Home',
+        nav_help: 'Help',
+        aria_switch_to_en: 'Switch to English',
+        aria_switch_to_es: 'Switch to Spanish',
+        loading_label: 'Loading',
+        employee_notice_qgc: 'QUALITY GLAZING CONTRACTORS EMPLOYEES ONLY. If you do not know your username or lost your password, contact your administrator.',
+        dev_title: 'Dev options',
+        dev_hint_html: 'Press Ctrl+Alt+D to revert all changes and close or Ctrl+Alt+Shift+H to hide.<br>Settings will persist inside the browser level. Some settings may change the backend data.',
+        dev_gate_title: 'Sign in with Google to an account enrolled in closed-testing to continue',
+        dev_gate_sub: 'For added security this step is required',
+        dev_regional: 'Regional flags',
+        dev_regional_desc: 'Override the detected country for geo-gated UI (PR banner, QGC mode). Applies on reload.',
+        dev_custom_country: 'Custom (e.g. CA)',
+        dev_set: 'Set',
+        dev_database: 'Database',
+        dev_database_desc: 'What the signed-in account can see. Reads go through security rules, so this is exactly the app&rsquo;s view of the DB.',
+        dev_loading: 'Loading…',
+        dev_db_path_ph: 'collection path (e.g. users)',
+        dev_db_path_aria: 'Collection path',
+        dev_browse: 'Browse',
+        dev_ui: 'UI',
+        dev_ui_desc: 'Preview the login page as a specific company: its branding, signin text and company functions. Applies on reload.',
+        dev_backend: 'Backend',
+        dev_backend_desc: 'Project info and Cloud Functions status (inventory comes from the server, so it always matches what&rsquo;s deployed).',
+        dev_ping_backend: 'Ping backend',
+        dev_not_enrolled: 'This account is not enrolled in closed testing.',
+        dev_signin_failed: 'Sign-in failed',
+        dev_try_again_suffix: '. Try again.',
+        dev_geo_auto: 'Auto (detect)',
+        dev_geo_us: 'United States',
+        dev_not_signed_in_html: '<b>Not signed in</b> on this page. The browser below still works for public collections.',
+        dev_no_user_doc: 'no users/{uid} doc',
+        dev_read_failed: 'read failed',
+        dev_loaded_below: 'loaded below',
+        dev_no_docs: 'No documents (or not readable).',
+        dev_docs_suffix: ' doc(s), tap to view:',
+        dev_read_failed_prefix: 'Read failed: ',
+        dev_browse_failed_prefix: 'Browse failed: ',
+        dev_browse_failed_suffix: '. The path may not exist or rules may deny it.',
+        dev_company_auto: 'Auto (no forcing)',
+        dev_company_note: 'Forces the company signin screen on load, like visiting its /company/ link.',
+        dev_label_project: 'project',
+        dev_label_functions_region: 'functions region',
+        dev_label_auth_domain: 'auth domain',
+        dev_label_server_time: 'server time',
+        dev_pinging: 'Pinging…',
+        dev_google_needed: 'Google sign-in needed first.',
+        dev_signin_cancelled: 'Sign-in cancelled.',
+        dev_ping_failed_prefix: 'Ping failed: ',
+        dev_ms_roundtrip: 'ms round-trip',
+        lang_toggle_to_en: 'Switch to English',
+        lang_toggle_to_es: 'Cambiar a español'
+      }
+    };
+    var STORE_KEY = 'nivelato-login-lang';
+    // Mirror the language into a cookie so surfaces on other subdomains
+    // (which cannot read this origin's localStorage, e.g. geo-blocked)
+    // can render in the same language.
+    function writeLangCookie(l) {
+      // Persistence now goes through NivSettings (niv-settings.js, loaded
+      // in <head>): setLang writes the same nivelato-login-lang cookie
+      // with the same attributes (Domain=.nivelatolabs.com, Path=/,
+      // SameSite=Lax, Max-Age=31536000; the locked es/en values encode to
+      // themselves, so raw cookie readers like geo-blocked keep working
+      // byte for byte) and keeps the localStorage mirror this page reads.
+      try {
+        if (window.NivSettings && window.NivSettings.setLang && window.NivSettings.setLang(l)) return;
+      } catch (_) { /* fall through to the legacy write */ }
+      try { document.cookie = STORE_KEY + '=' + l + '; Domain=.nivelatolabs.com; Path=/; SameSite=Lax; Max-Age=31536000'; } catch (_) { /* ignore */ }
+    }
+    function detectLang() {
+      try {
+        var s = localStorage.getItem(STORE_KEY);
+        if (s === 'es' || s === 'en') return s;
+      } catch (_) { /* storage unavailable */ }
+      try {
+        var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+        if (nav === 'en' || nav.indexOf('en-') === 0) return 'en';
+      } catch (_) { /* ignore */ }
+      return 'es';
+    }
+    var lang = detectLang();
+    writeLangCookie(lang);
+    // Language explicitly chosen by the user this session (via the toggle).
+    // postAuthRedirect must not let a stale DB value override it.
+    var sessionExplicitLang = null;
+    function t(key) {
+      var d = DICT[lang] || DICT.es;
+      if (d && d[key] !== undefined) return d[key];
+      return DICT.es[key] !== undefined ? DICT.es[key] : key;
+    }
+    function applyLang() {
+      try { document.documentElement.setAttribute('lang', lang); } catch (_) {}
+      try { document.title = t('page_title'); } catch (_) {}
+      var btn = document.getElementById('lang-toggle');
+      if (btn) {
+        // Label: "Select language" until a choice is saved to the DB, then
+        // "Change language" (nl_lang_db flag). Tapping always cycles es<->en.
+        var dbSaved = false;
+        try { dbSaved = localStorage.getItem('nl_lang_db') === '1'; } catch (_) {}
+        btn.textContent = t(dbSaved ? 'change_language' : 'select_language');
+        // p34: the accessible name must be in the ACTIVE UI language, not
+        // the target language, so a screen reader user hears their own
+        // language (aria_switch_to_* are phrased per active dictionary).
+        var al = t(lang === 'es' ? 'aria_switch_to_en' : 'aria_switch_to_es');
+        btn.setAttribute('aria-label', al);
+        btn.setAttribute('title', al);
+      }
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (els[i].hasAttribute('data-i18n-html')) els[i].innerHTML = t(k);
+        else els[i].textContent = t(k);
+      }
+      var phs = document.querySelectorAll('[data-i18n-ph]');
+      for (var j = 0; j < phs.length; j++) {
+        phs[j].setAttribute('placeholder', t(phs[j].getAttribute('data-i18n-ph')));
+      }
+      var aras = document.querySelectorAll('[data-i18n-aria]');
+      for (var m = 0; m < aras.length; m++) {
+        aras[m].setAttribute('aria-label', t(aras[m].getAttribute('data-i18n-aria')));
+      }
+      // watchdog banner, if visible: rebuild it in the current language
+      var bw = document.getElementById('boot-warn');
+      if (bw) {
+        bw.innerHTML = '';
+        bw.appendChild(document.createTextNode(t('boot_a')));
+        var rb = document.createElement('button');
+        rb.type = 'button';
+        rb.id = 'boot-retry';
+        rb.setAttribute('style', 'text-decoration:underline;background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:0');
+        rb.textContent = t('boot_reload');
+        rb.addEventListener('click', function () { window.location.reload(); });
+        bw.appendChild(rb);
+        bw.appendChild(document.createTextNode(t('boot_b')));
+      }
+    }
+    function setLang(l) {
+      if (l !== 'es' && l !== 'en') return;
+      if (l === lang) return;
+      lang = l;
+      // Explicit user choice this session: beats any stale DB value adopted
+      // later in postAuthRedirect (toggle-then-sign-in race).
+      sessionExplicitLang = l;
+      try { localStorage.setItem(STORE_KEY, l); } catch (_) { /* ignore */ }
+      writeLangCookie(l);
+      // Write-through to the DB when signed in (best effort; never blocks).
+      if (window.__nivelatoSaveLangDb) { try { window.__nivelatoSaveLangDb(l); } catch (_) {} }
+      applyLang();
+      // let the ES module re-render its dynamic strings (form, notices,
+      // save-login prompt, pending screen) in the new language
+      if (window.__nivelatoOnLangChange) {
+        try { window.__nivelatoOnLangChange(l); } catch (_) { /* ignore */ }
+      }
+    }
+    // Adopt a language coming from the DB (no write-back; just switch to it).
+    function adoptDbLang(l) {
+      if (l !== 'es' && l !== 'en') return;
+      writeLangCookie(l);
+      try { localStorage.setItem('nl_lang_db', '1'); } catch (_) { /* ignore */ }
+      if (l === lang) { applyLang(); return; }
+      lang = l;
+      try { localStorage.setItem(STORE_KEY, l); } catch (_) { /* ignore */ }
+      applyLang();
+      if (window.__nivelatoOnLangChange) {
+        try { window.__nivelatoOnLangChange(l); } catch (_) { /* ignore */ }
+      }
+    }
+    window.__nivelatoAdoptDbLang = adoptDbLang;
+    window.nivT = t;
+    window.nivApplyLang = applyLang;
+    window.nivGetLang = function () { return lang; };
+    window.setLang = setLang;
+
+    // Delegated: survives the module's innerHTML re-renders.
+    document.addEventListener('click', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest('#lang-toggle') : null;
+      if (el) {
+        e.preventDefault();
+        setLang(lang === 'es' ? 'en' : 'es');
+        return;
+      }
+    });
+
+    // Apply the stored/device language to the static HTML immediately.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyLang);
+    } else {
+      applyLang();
+    }
+  })();
+</script>
+
+<script>
+  console.log('[Nivelato] Cargando backend... (módulo JS)');
+  try {
+    console.log('%c🦀', 'font-size: 42px;');
+    console.log('%c the offsets are leveled but the vibes are not ',
+      'color: #1b9aaa; font-style: italic; font-size: 13px;');
+  } catch (_) { /* whimsy is optional */ }
+  // Self-XSS warning: never paste commands here. Ever.
+  // QR code for the console FAQ (data URL so it works offline of the worker).
+  var NIV_CONSOLE_QR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEIAQAAAACLjVdSAAABlElEQVR4nO2ZwYrEMAxDpWX+/5ffHuQkXViYU1MzmTIDbdBBNbYsu0Zvrp93gC/igxEvybnDyOSJddqG6bZ4CGm+v5Als067MN0XDzlv7z85Mk67MN2OICmBDf4XsYdHF4THL/XyGI9HES+ppEJYWERZ52kbpvviUcVhzEiNKSJ9mO5BXCvDippydr2sXKgozLj4PP8xEICYWmotY9aN6b2I6AeyGDVSCiJO9B/lT53kSE5YEpFWH1kvThCSEBiQ7JKTVkxvR8R/mJgOLEsyVJps49EFIQBGZxHl2kmyIOjCdBvCQzorSapeWIg9PLogiH5UfxlWJME5rt+WGZ1O3RUfxY8dFw/BmvSZ/0gKR+qHVO8uSWsXpPJkvZjejUgcqqnU/ew2Eqflx2WSzfyWJcgYYrbx6IK47NeHBYt3P7ffliXTiEFty8ZXh05M70dc9+spGUytUX1mvczL2GOEWZrahel2BDLIIj3Hlv0Ej0cRl/36MO4ZdE0Jaxem++Jx2a/HqafV1kfLLky3+49HeXwRPRG/x/fK2hDpkmYAAAAASUVORK5CYII=';
+  try {
+    console.log('%cSTOP!', 'color:#ff3b30;font-size:56px;font-weight:900;');
+    console.log('%cPasting commands into this console can let attackers steal your account. ' +
+      'No real Nivelato feature will ever ask you to paste anything here.\n' +
+      'Learn why: https://faq.nivelatolabs.com/console',
+      'font-size:14px;line-height:1.6;');
+    console.log('%c ', 'padding:70px 90px;background:url("' + NIV_CONSOLE_QR + '") no-repeat center;background-size:contain;');
+    console.log('%c^ scan for the FAQ: why you never paste console commands',
+      'color:#a7a7b3;font-size:12px;font-style:italic;');
+  } catch (_) { /* the warning is load-bearing, the styling is not */ }
+  // M17 watchdog (classic script — arms at parse time, needs no imports):
+  // if the module below hasn't booted within 9s (stalled CDN / blocked
+  // network), show a non-blocking warning instead of hanging silently.
+  // The static form above stays visible and usable the whole time.
+  setTimeout(function () {
+    if (window.__nivelatoBooted) return;
+    var card = document.getElementById('app-card');
+    if (card && !document.getElementById('boot-warn')) {
+      var t = window.nivT || function (k) { return k; };
+      var w = document.createElement('div');
+      w.id = 'boot-warn';
+      w.className = 'geo-note';
+      w.setAttribute('role', 'alert');
+      w.appendChild(document.createTextNode(t('boot_a')));
+      var rb = document.createElement('button');
+      rb.type = 'button';
+      rb.id = 'boot-retry';
+      rb.setAttribute('style', 'text-decoration:underline;background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:0');
+      rb.textContent = t('boot_reload');
+      rb.addEventListener('click', function () { window.location.reload(); });
+      w.appendChild(rb);
+      w.appendChild(document.createTextNode(t('boot_b')));
+      card.prepend(w);
+    }
+  }, 60000);
+</script>
+
+<script type="module">
+  import { auth, db, centralFunctions, defaultFirebaseConfig } from './demo-noop.js';
+  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import {
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    sendPasswordResetEmail,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithCustomToken,
+    getAuth
+  } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import {
+    doc, setDoc, getDoc, updateDoc, serverTimestamp, Timestamp, getFirestore,
+    collection, getDocs, query, limit
+  } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { httpsCallable, getFunctions } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
+  import { detectCountry, flowModeForCountry, ensureFlowClaims, routeAfterGate } from './geo.js';
+
+  console.log('[Nivelato] Cargando backend... imports listos, inicializando');
+
+  // Correo de bienvenida: la app lo pide explícito tras el signup para que
+  // Restablecer contraseña: primero el flujo propio (remitente
+  // noreply@nivelatolabs.com); si la cuenta vive en un backend propio,
+  // el servidor central no la conoce y caemos al correo default de Firebase.
+  async function doForgotPassword() {
+    const t = window.nivT;
+    const email = prompt(t('forgot_prompt'));
+    if (!email || !email.trim()) return;
+    try {
+      await httpsCallable(centralFunctions, 'requestPasswordReset')({ email: email.trim() });
+      alert(t('forgot_sent'));
+    } catch (err) {
+      if (err.code === 'functions/not-found') {
+        try {
+          await sendPasswordResetEmail(auth, email.trim());
+          alert(t('forgot_sent'));
+        } catch (e2) {
+          alert(t('forgot_failed') + friendlyError(e2.code));
+        }
+      } else {
+        alert(t('forgot_failed') + (err.message || t('forgot_unknown')));
+      }
+    }
+  }
+
+  window.__nivelatoBooted = true;
+  console.log('[Nivelato] Cargando backend... Firebase listo');
+  console.log('[Nivelato] Backend listo');
+  // If the watchdog banner fired on a slow connection but we booted anyway,
+  // remove it — the page is fully functional now.
+  var bw = document.getElementById('boot-warn');
+  if (bw) bw.remove();
+
+  // ---- Geo-gated UI (spec §6) ----
+  // "are you in puerto rico?" — the page needs to know. it ALWAYS needs to know.
+  // The default form is static HTML above, so geo NEVER gates first paint.
+  // Geo resolves in the background after paint; if the real flow differs from
+  // what's rendered, the UI is swapped then. Enforcement stays server-side
+  // in the flowGate callable — the client lookup is routing-only, so
+  // render-first is safe. Unknown geo → external (§6.3).
+  // Web login QGC mode is enabled: PR visitors get the company domain
+  // selector and QGC flows per the company login redesign (Oct 2026).
+  // Enforcement stays server-side in the flowGate callable.
+  const WEB_LOGIN_GENERIC = false;
+  function flowFromCookie() {
+    if (WEB_LOGIN_GENERIC) return 'external';
+    const m = document.cookie.match(/(?:^|;\s*)nl_flow=(qgi|external)/);
+    return m ? m[1] : null;
+  }
+
+  // QGC device trust: once a device signs in successfully in QGC mode, it is
+  // remembered in localStorage. On later visits the flag forces QGC mode
+  // directly, skipping geo-detection entirely (covers iCloud Private Relay
+  // and VPN cases where geo fails but the device already proved it is QGC).
+  // Device-level trust: never cleared on sign-out, only on storage clear.
+  const QGC_AUTHED_KEY = 'nivelato_qgc_authed';
+  function qgcAuthed() {
+    try { return localStorage.getItem(QGC_AUTHED_KEY) === '1'; } catch (_) { return false; }
+  }
+  function markQgcAuthed() {
+    try { localStorage.setItem(QGC_AUTHED_KEY, '1'); } catch (_) { /* ignore */ }
+  }
+
+  // Travel grant: a QGC-trusted device outside PR can get 30 days of QGC
+  // mode via an email verification link. The grant is a localStorage
+  // timestamp; page load enables QGC mode when the device is trusted AND
+  // (the grant is still in the future OR geo says PR). Being back in PR
+  // makes the grant redundant, so it never needs explicit clearing.
+  const QGC_TRAVEL_KEY = 'nivelato_qgc_travel_until';
+  function qgcTravelValid() {
+    try { return parseInt(localStorage.getItem(QGC_TRAVEL_KEY) || '0', 10) > Date.now(); }
+    catch (_) { return false; }
+  }
+  function storeTravelGrant(validUntilMs) {
+    try { localStorage.setItem(QGC_TRAVEL_KEY, String(validUntilMs)); } catch (_) { /* ignore */ }
+  }
+
+  // ---- "Cuentas usadas" (used-accounts picker, mockup) ----
+  // the lineup of everyone who's ever typed a password here. no snitching.
+  // Successful logins are remembered in localStorage (email + display name
+  // + kind). Tapping a pill pre-fills the email and focuses the password
+  // field; a QGC account also forces QGC mode. Most-recent-first, capped.
+  const USED_ACCOUNTS_KEY = 'nivelato_used_accounts';
+  const MAX_USED_ACCOUNTS = 5;
+  function getUsedAccounts() {
+    try {
+      const raw = localStorage.getItem(USED_ACCOUNTS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(function (a) { return a && a.email; }) : [];
+    } catch (_) { return []; }
+  }
+  function saveUsedAccount(email, displayName, kind) {
+    try {
+      const norm = String(email || '').trim().toLowerCase();
+      if (!norm) return;
+      const rest = getUsedAccounts().filter(function (a) {
+        return String(a.email || '').toLowerCase() !== norm;
+      });
+      rest.unshift({ email: norm, displayName: String(displayName || '').trim(), kind: kind || 'personal', ts: Date.now() });
+      localStorage.setItem(USED_ACCOUNTS_KEY, JSON.stringify(rest.slice(0, MAX_USED_ACCOUNTS)));
+    } catch (_) { /* ignore */ }
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function initialsOf(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
+  function accountKindLabel(kind) {
+    const t = window.nivT;
+    if (kind === 'qgc') return t('account_kind_qgc');
+    if (kind === 'trabajo') return t('account_kind_work');
+    return t('account_kind_personal');
+  }
+  function accountsSectionHTML() {
+    const addBtn = '<button type="button" class="account-add" data-add-account">'
+      + '<span class="account-add-icon" aria-hidden="true">+</span>'
+      + '<span data-i18n="add_another_account"></span></button>';
+    if (QGI) {
+      // QGC mode: approved-company pills under "Entrar con...". COMPANIES is
+      // the approval list: only entries here are rendered. Empty = hide.
+      const ids = Object.keys(COMPANIES);
+      if (!ids.length) return '';
+      const pills = ids.map(function (id) {
+        const c = COMPANIES[id];
+        return '<button type="button" class="account-pill" data-company-pill="' + escapeHtml(id) + '">'
+          + '<span class="account-avatar account-avatar-logo"><img src="' + escapeHtml(c.logo) + '" alt="' + escapeHtml(c.name) + '" /></span>'
+          + '<span class="account-meta">'
+          + '<span class="account-name">' + escapeHtml(c.name) + '</span>'
+          + '</span></button>';
+      }).join('');
+      return '<div class="accounts-section" id="accounts-section">'
+        + '<div class="accounts-head"><div class="accounts-title" data-i18n="signin_with"></div>'
+        + '<button type="button" id="lang-toggle" class="lang-toggle"></button></div>'
+        + '<div id="accounts-list">' + pills + addBtn + '</div></div>';
+    }
+    const accounts = getUsedAccounts();
+    const pills = accounts.map(function (a, i) {
+      const label = a.displayName || a.email;
+      return '<button type="button" class="account-pill" data-acct-index="' + i + '">'
+        + '<span class="account-avatar">' + escapeHtml(initialsOf(label)) + '</span>'
+        + '<span class="account-meta">'
+        + '<span class="account-name">' + escapeHtml(label) + '</span>'
+        + '<span class="account-kind">' + escapeHtml(accountKindLabel(a.kind)) + '</span>'
+        + '</span></button>';
+    }).join('');
+    // External mode (non-PR): no "Add personal account" button — that's a
+    // PR-only escape hatch. Non-PR users are already in the personal flow.
+    return '<div class="accounts-section" id="accounts-section">'
+      + '<div class="accounts-head"><div class="accounts-title" data-i18n="used_accounts"></div>'
+      + '<button type="button" id="lang-toggle" class="lang-toggle"></button></div>'
+      + '<div id="accounts-list">' + pills + '</div></div>';
+  }
+  function onAccountPillClick(e) {
+    const coPill = e.target && e.target.closest ? e.target.closest('[data-company-pill]') : null;
+    if (coPill) {
+      // Approved-company pill: open that company's branded signin screen.
+      const id = coPill.getAttribute('data-company-pill');
+      if (id && COMPANIES[id]) showCompanyUI(id);
+      return;
+    }
+    const addBtn = e.target && e.target.closest ? e.target.closest('[data-add-account]') : null;
+    if (addBtn) {
+      showAddAccountUI();
+      return;
+    }
+    const pill = e.target && e.target.closest ? e.target.closest('.account-pill') : null;
+    if (!pill) return;
+    const accounts = getUsedAccounts();
+    const acct = accounts[parseInt(pill.getAttribute('data-acct-index'), 10)];
+    if (!acct || !acct.email) return;
+    // A QGC account forces QGC mode (upgrade only, never downgrade):
+    // QGC mode opens directly on the domain selector.
+    if (acct.kind === 'qgc' && !QGI) { enterQgiDomainSelector(); return; }
+    // Password-only re-auth: the account is fixed, only the password is asked.
+    reauthShown = acct;
+    navigateTo('reauth');
+  }
+
+  let QGI = false;        // currently rendered flow
+  let qgcEscape = false;  // true when personal mode was entered from the QGC screen
+  let country = null;     // resolved async; null until geo settles
+  let pendingShown = false;
+  let authInitDone = false;
+  let authBusy = false;   // a login/signup submit is in flight
+  let savePromptShown = false;  // the "save login?" prompt replaced the card
+  let pendingAuthAction = null; // sign-in work gated behind the save-login prompt
+  let persistenceChoiceBusy = false; // a save-login choice is being applied
+  let prNoticeOn = false, geoNoticeOn = false, profileNoticeOn = false;
+
+  const VALUE_IDS = ['login-email', 'login-pass'];
+  function collectValues() {
+    const v = {};
+    for (const id of VALUE_IDS) {
+      const el = document.getElementById(id);
+      if (el) v[id] = el.value;
+    }
+    return v;
+  }
+
+  function formHTML(qgi) {
+    const logoSrc = qgi ? './qgc-logo.jpg' : './icon-192.png';
+    const logoAlt = qgi ? 'Quality Glass' : 'Nivelato';
+    return `
+    <div class="split">
+      <div class="brand-panel">
+        ${qgi
+          ? `<h1 class="logo">Nivelato<span class="adot">.</span></h1>
+        <div class="tagline" data-i18n="tagline_qgc_brand"></div>
+        <div class="qgc-only-notice" data-i18n="qgc_only_msg"></div>`
+          : `<h1 class="logo">Nivelato<span class="adot">.</span></h1>
+        <div class="tagline" data-i18n="tagline"></div>`}
+        <div class="brand-logo-box"><img src="${logoSrc}" alt="${logoAlt}" /></div>
+      </div>
+      <div class="main-panel" data-envmark-card>
+        ${accountsSectionHTML() || '<div class="accounts-head"><button type="button" id="lang-toggle" class="lang-toggle"></button></div>'}
+        ${qgi ? `<div class="exclusivity-note" data-i18n="exclusivity_note_html" data-i18n-html="1"></div>` : ''}
+        ${qgi ? '' : `<div id="form-login">
+          <form id="login-form" autocomplete="on" onsubmit="return false">
+            <div class="field">
+              <label for="login-email" data-i18n="label_email"></label>
+              <input type="email" id="login-email" name="email" data-i18n-ph="ph_email" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="login-pass" data-i18n="label_password"></label>
+              <input type="password" id="login-pass" name="password" data-i18n-ph="ph_password" autocomplete="current-password" />
+            </div>
+            <button class="btn-primary" id="btn-login" type="submit" data-i18n="btn_login"></button>
+          </form>
+          <div style="text-align:center;margin-top:10px;"><a href="#" id="forgot-link" class="forgot-link" data-i18n="forgot"></a></div>
+          <div class="error-msg" id="login-error" role="alert"></div>
+        </div>`}
+      </div>
+    </div>`;
+  }
+
+  function renderForm(mode, keepState = false) {
+    const prev = keepState ? collectValues() : {};
+    QGI = (mode === 'qgi');
+    document.body.classList.toggle('qgc-theme', QGI);
+    const _tc = document.querySelector('meta[name="theme-color"]');
+    if (_tc) _tc.setAttribute('content', QGI ? '#2a2a2e' : '#0b0b0e');
+    document.getElementById('app-card').innerHTML = formHTML(QGI);
+    for (const id of Object.keys(prev)) {
+      const el = document.getElementById(id);
+      if (el) el.value = prev[id];
+    }
+    const lf = document.getElementById('login-form');
+    if (lf) lf.addEventListener('submit', doLogin);
+    const acctList = document.getElementById('accounts-list');
+    if (acctList) acctList.addEventListener('click', onAccountPillClick);
+    const forgot = document.getElementById('forgot-link');
+    if (forgot) forgot.addEventListener('click', (e) => { e.preventDefault(); doForgotPassword(); });
+    window.nivApplyLang();
+  }
+
+  function showGeoNotice() {
+    geoNoticeOn = true;
+    const card = document.getElementById('app-card');
+    if (!card || document.getElementById('geo-note')) return;
+    const note = document.createElement('div');
+    note.id = 'geo-note';
+    note.className = 'geo-note';
+    note.textContent = window.nivT('geo_note');
+    card.prepend(note);
+  }
+
+  // PR company-use notice: QGC gray theme. In Puerto Rico only QGC employees
+  // may use Nivelato as a company; everyone else gets the free Play Store app.
+  function showPrNotice() {
+    prNoticeOn = true;
+    const card = document.getElementById('app-card');
+    if (!card || document.getElementById('pr-note')) return;
+    const t = window.nivT;
+    const note = document.createElement('div');
+    note.id = 'pr-note';
+    note.setAttribute('role', 'alert');
+    note.style.cssText = 'background:#3a3a3e;border:1px solid #55555c;border-radius:12px;padding:10px 12px;margin-bottom:14px;color:#f2f1ec;font-size:12px;line-height:1.55';
+    note.innerHTML = t('pr_note_1')
+      + t('pr_note_2')
+      + '<a href="https://play.google.com/store/apps/details?id=com.nivelato.app" style="font-weight:700;color:#ffffff;text-decoration:underline">' + t('pr_note_link') + '</a>.';
+    card.prepend(note);
+  }
+
+  // settings.html redirects here with ?missingProfile=1 when the signed-in
+  // account has no users/{uid} doc — surface it instead of failing silently.
+  function showMissingProfileNotice() {
+    profileNoticeOn = true;
+    const card = document.getElementById('app-card');
+    if (!card || document.getElementById('profile-note')) return;
+    const note = document.createElement('div');
+    note.id = 'profile-note';
+    note.className = 'geo-note';
+    note.setAttribute('role', 'alert');
+    note.textContent = window.nivT('profile_note');
+    card.prepend(note);
+  }
+
+  // Re-render the visible notices in the new language (renderForm wipes them).
+  function refreshNotices() {
+    for (const id of ['pr-note', 'geo-note', 'profile-note']) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+    if (prNoticeOn) showPrNotice();
+    if (geoNoticeOn) showGeoNotice();
+    if (profileNoticeOn) showMissingProfileNotice();
+  }
+
+  // Called by the classic script's setLang after applyLang: re-render every
+  // dynamic surface (form, notices, save-login prompt, pending screen).
+  window.__nivelatoOnLangChange = function () {
+    // Every branch rebuilds #app-card (wiping the notice elements), so
+    // re-render the notices in the new language on ALL paths, not just the
+    // main form fallthrough.
+    if (savePromptShown) { showSaveLoginPrompt(); refreshNotices(); return; }
+    if (travelShown) { renderTravelUI(); refreshNotices(); return; }
+    if (addAccountShown) { renderAddAccountUI(); refreshNotices(); return; }
+    if (cantAddShown) { renderCantAddUI(); refreshNotices(); return; }
+    if (companyShown) { renderCompanyUI(); refreshNotices(); return; }
+    if (companySelectShown) { renderCompanySelectUI(); refreshNotices(); return; }
+    if (reauthShown) { renderReauthUI(); refreshNotices(); return; }
+    renderForm(QGI ? 'qgi' : 'external', true);
+    refreshNotices();
+  };
+
+  // ---- Language preference persistence (users/{uid}.language) ----
+  // The login page keeps its own i18n in localStorage; when the user is
+  // signed in, the choice is also written to the DB so it follows them
+  // across devices, and the DB value wins on later sign-ins.
+  window.__nivelatoSaveLangDb = async function (l) {
+    try {
+      if (!auth.currentUser) return false;
+      if (l !== 'es' && l !== 'en') return false;
+      await setDoc(doc(db, 'users', auth.currentUser.uid), { language: l }, { merge: true });
+      try { localStorage.setItem('nl_lang_db', '1'); } catch (_) { /* ignore */ }
+      return true;
+    } catch (_) { return false; }
+  };
+
+  // ---- Dev options (hidden panel, Benj only) ----
+  // if you're reading this and you're not benj: hi. this isn't for you. :)
+  // Ctrl+Alt+D: open (Google gate on first unlock per browser); if the panel
+  //   is open, revert all dev settings and close.
+  // Ctrl+Alt+Shift+H: hide the panel (settings kept).
+  // Settings persist in localStorage (nl_dev_*). Regional flags override the
+  // detected country for geo-gated UI testing.
+  var DEV_GEO_KEY = 'nl_dev_geo';
+  var DEV_UNLOCK_KEY = 'nl_dev_unlocked';
+  function devGet(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }
+  function devSet(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* ignore */ } }
+  function devDel(k) { try { localStorage.removeItem(k); } catch (_) { /* ignore */ } }
+
+  function devEnsureDom() {
+    if (document.getElementById('dev-overlay')) return;
+    var badge = document.createElement('button');
+    badge.id = 'dev-badge';
+    badge.type = 'button';
+    badge.textContent = '!! DEV !!';
+    badge.addEventListener('click', devToggle);
+    document.body.appendChild(badge);
+    var ov = document.createElement('div');
+    ov.id = 'dev-overlay';
+    // p15: every dev-panel string goes through the dictionary (window.nivT),
+    // and the overlay records the language it was built in so devOpen can
+    // rebuild it after a language toggle.
+    var dt = window.nivT;
+    ov.setAttribute('data-dev-lang', (window.nivGetLang && window.nivGetLang()) || 'es');
+    ov.innerHTML =
+      '<div class="dev-modal" role="dialog" aria-label="' + dt('dev_title') + '">'
+      + '<h2>' + dt('dev_title') + '</h2>'
+      + '<div class="dev-hint">' + dt('dev_hint_html') + '</div>'
+      + '<div id="dev-gate">'
+      + '<div class="dev-card">'
+      + '<div class="dev-card-title">' + dt('dev_gate_title') + '</div>'
+      + '<div class="dev-card-sub">' + dt('dev_gate_sub') + '</div>'
+      + '<button class="dev-btn" id="dev-google-btn" type="button">' + dt('signin_google') + '</button>'
+      + '<button class="dev-btn primary" id="dev-signin-btn" type="button">' + dt('btn_login') + '</button>'
+      + '<div class="dev-err" id="dev-gate-err"></div>'
+      + '</div>'
+      + '</div>'
+      + '<div id="dev-sections" style="display:none">'
+      + '<button class="dev-sec-btn" id="devsec-regional-btn" type="button">' + dt('dev_regional') + '</button>'
+      + '<div class="dev-sec-body" id="devsec-regional" style="display:none">'
+      + '<div class="dev-desc">' + dt('dev_regional_desc') + '</div>'
+      + '<div id="dev-geo-opts"></div>'
+      + '<div class="dev-geo-custom"><input id="dev-geo-custom" maxlength="2" placeholder="' + dt('dev_custom_country') + '" aria-label="' + dt('dev_custom_country') + '" /><button class="dev-btn" id="dev-geo-apply" type="button" style="width:auto;margin:0;padding:11px 18px;">' + dt('dev_set') + '</button></div>'
+      + '</div>'
+      + '<button class="dev-sec-btn" id="devsec-database-btn" type="button">' + dt('dev_database') + '</button>'
+      + '<div class="dev-sec-body" id="devsec-database" style="display:none">'
+      + '<div class="dev-desc">' + dt('dev_database_desc') + '</div>'
+      + '<div id="dev-db-user"><div class="dev-desc">' + dt('dev_loading') + '</div></div>'
+      + '<div class="dev-geo-custom"><input id="dev-db-path" placeholder="' + dt('dev_db_path_ph') + '" aria-label="' + dt('dev_db_path_aria') + '" /><button class="dev-btn" id="dev-db-browse" type="button" style="width:auto;margin:0;padding:11px 18px;">' + dt('dev_browse') + '</button></div>'
+      + '<div id="dev-db-results"></div>'
+      + '</div>'
+      + '<button class="dev-sec-btn" id="devsec-ui-btn" type="button">' + dt('dev_ui') + '</button>'
+      + '<div class="dev-sec-body" id="devsec-ui" style="display:none">'
+      + '<div class="dev-desc">' + dt('dev_ui_desc') + '</div>'
+      + '<div id="dev-company-opts"></div>'
+      + '</div>'
+      + '<button class="dev-sec-btn" id="devsec-backend-btn" type="button">' + dt('dev_backend') + '</button>'
+      + '<div class="dev-sec-body" id="devsec-backend" style="display:none">'
+      + '<div class="dev-desc">' + dt('dev_backend_desc') + '</div>'
+      + '<div id="dev-backend-info"><div class="dev-desc">' + dt('dev_loading') + '</div></div>'
+      + '<button class="dev-btn" id="dev-ping-btn" type="button">' + dt('dev_ping_backend') + '</button>'
+      + '<div id="dev-ping-result"></div>'
+      + '<div id="dev-fn-list"></div>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) devHide(); });
+    document.body.appendChild(ov);
+    document.getElementById('dev-google-btn').addEventListener('click', devGoogleGate);
+    document.getElementById('dev-signin-btn').addEventListener('click', devGoogleGate);
+    document.getElementById('devsec-regional-btn').addEventListener('click', function () {
+      devToggleSection('regional', devRenderGeoOpts);
+    });
+    document.getElementById('devsec-database-btn').addEventListener('click', function () {
+      devToggleSection('database', devRenderDbUser);
+    });
+    document.getElementById('devsec-ui-btn').addEventListener('click', function () {
+      devToggleSection('ui', devRenderCompanyOpts);
+    });
+    document.getElementById('devsec-backend-btn').addEventListener('click', function () {
+      devToggleSection('backend', devRenderBackendInfo);
+    });
+    document.getElementById('dev-db-browse').addEventListener('click', devBrowseCollection);
+    document.getElementById('dev-ping-btn').addEventListener('click', devPingBackend);
+    devEnsureDomGeoApply();
+    if (devGet(DEV_UNLOCK_KEY) === '1') devShowBadge(true);
+    devEnsureHoldZone();
+  }
+
+  // Mobile: long-press (1.5s) the top-right corner of the page = Ctrl+Alt+D.
+  // the secret handshake, but for thumbs.
+  var _holdTimer = null;
+  function devEnsureHoldZone() {
+    if (document.getElementById('dev-hold-zone')) return;
+    var z = document.createElement('div');
+    z.id = 'dev-hold-zone';
+    z.setAttribute('aria-hidden', 'true');
+    var start = function () {
+      if (_holdTimer) clearTimeout(_holdTimer);
+      _holdTimer = setTimeout(function () {
+        _holdTimer = null;
+        try { if (navigator.vibrate) navigator.vibrate(50); } catch (_) { /* ignore */ }
+        devToggle();
+      }, 1500);
+    };
+    var cancel = function () { if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; } };
+    z.addEventListener('pointerdown', start);
+    z.addEventListener('pointerup', cancel);
+    z.addEventListener('pointercancel', cancel);
+    z.addEventListener('pointerleave', cancel);
+    document.body.appendChild(z);
+  }
+
+  function devToggleSection(name, renderFn) {
+    var body = document.getElementById('devsec-' + name);
+    if (!body) return;
+    var open = body.style.display === 'none';
+    ['regional', 'database', 'ui', 'backend'].forEach(function (n) {
+      var b = document.getElementById('devsec-' + n);
+      if (b) b.style.display = 'none';
+    });
+    if (open) {
+      body.style.display = 'block';
+      if (renderFn) renderFn();
+    }
+  }
+
+  function devEnsureDomGeoApply() {
+    document.getElementById('dev-geo-apply').addEventListener('click', function () {
+      var v = (document.getElementById('dev-geo-custom').value || '').trim().toUpperCase();
+      if (!/^[A-Z]{2}$/.test(v)) return;
+      devSet(DEV_GEO_KEY, v);
+      location.reload();
+    });
+  }
+
+  function devShowBadge(show) {
+    var b = document.getElementById('dev-badge');
+    if (b) b.style.display = show ? 'block' : 'none';
+  }
+  function devShowSections() {
+    document.getElementById('dev-gate').style.display = 'none';
+    document.getElementById('dev-sections').style.display = 'block';
+  }
+  function devOpen() {
+    // Rebuild a stale-language overlay (language was toggled after it was
+    // first built) so the panel opens in the active language.
+    var existing = document.getElementById('dev-overlay');
+    var curLang = (window.nivGetLang && window.nivGetLang()) || 'es';
+    if (existing && existing.getAttribute('data-dev-lang') !== curLang) {
+      existing.remove();
+      var b = document.getElementById('dev-badge');
+      if (b) b.remove();
+    }
+    devEnsureDom();
+    document.getElementById('dev-overlay').classList.add('open');
+    if (devGet(DEV_UNLOCK_KEY) === '1') devShowSections();
+  }
+  function devHide() {
+    var ov = document.getElementById('dev-overlay');
+    if (ov) ov.classList.remove('open');
+  }
+  function devIsOpen() {
+    var ov = document.getElementById('dev-overlay');
+    return !!(ov && ov.classList.contains('open'));
+  }
+  function devRevertClose() {
+    // Revert all dev settings (keep the unlock itself).
+    try {
+      var rm = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('nl_dev_') === 0 && k !== DEV_UNLOCK_KEY) rm.push(k);
+      }
+      rm.forEach(function (k) { try { localStorage.removeItem(k); } catch (_) {} });
+    } catch (_) { /* ignore */ }
+    devHide();
+    devShowBadge(devGet(DEV_UNLOCK_KEY) === '1');
+  }
+  function devToggle() {
+    devEnsureDom();
+    if (devIsOpen()) { devHide(); return; } // M34: chord-close is a plain close; reverting nl_dev_* is no longer a side effect of the toggle
+    devOpen();
+  }
+
+  // Google gate: secondary app instance so the login page's own auth session
+  // is never disturbed. The email must be in the devAllowlist collection
+  // (kept in sync with the Play Console closed-testing list).
+  var _devApp = null, _devAuth = null;
+  async function devGoogleGate() {
+    var errEl = document.getElementById('dev-gate-err');
+    errEl.textContent = '';
+    try {
+      if (!_devApp) {
+        try { _devApp = initializeApp(defaultFirebaseConfig, 'nivelato-dev-gate'); }
+        catch (_) { _devApp = getApp('nivelato-dev-gate'); }
+        _devAuth = getAuth(_devApp);
+      }
+      var cred = await signInWithPopup(_devAuth, new GoogleAuthProvider());
+      var email = (cred.user && cred.user.email ? cred.user.email : '').toLowerCase();
+      if (!email) throw new Error('no-email');
+      var devDb = getFirestore(_devApp);
+      var snap = await getDoc(doc(devDb, 'devAllowlist', email));
+      if (!snap.exists()) {
+        await signOut(_devAuth).catch(function () {});
+        errEl.textContent = window.nivT('dev_not_enrolled');
+        return;
+      }
+      // Keep the dev-gate Google session: the Backend ping reuses it, and the
+      // login page's own auth session is untouched (separate app instance).
+      devSet(DEV_UNLOCK_KEY, '1');
+      devShowBadge(true);
+      devShowSections();
+    } catch (e) {
+      var code = (e && e.code) || '';
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
+      // Surface the real code: the popup failing blank gives us nothing to go on otherwise.
+      errEl.textContent = window.nivT('dev_signin_failed') + (code ? ' (' + code + ')' : '') + window.nivT('dev_try_again_suffix');
+    }
+  }
+
+  function devRenderGeoOpts() {
+    var cur = devGet(DEV_GEO_KEY) || '';
+    var opts = [
+      { v: '', label: window.nivT('dev_geo_auto') },
+      { v: 'PR', label: 'Puerto Rico' },
+      { v: 'US', label: window.nivT('dev_geo_us') },
+    ];
+    var box = document.getElementById('dev-geo-opts');
+    box.innerHTML = '';
+    opts.forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dev-geo-opt' + (cur === o.v ? ' active' : '');
+      b.textContent = o.label + (cur === o.v ? ' ✓' : '');
+      b.addEventListener('click', function () {
+        if (o.v) devSet(DEV_GEO_KEY, o.v); else devDel(DEV_GEO_KEY);
+        location.reload();
+      });
+      box.appendChild(b);
+    });
+    if (cur && opts.every(function (o) { return o.v !== cur; })) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dev-geo-opt active';
+      b.textContent = cur + ' ✓';
+      b.addEventListener('click', function () { devDel(DEV_GEO_KEY); location.reload(); });
+      box.appendChild(b);
+    }
+  }
+
+  function devEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ---- Database section: the signed-in account's scope + a collection browser.
+  // Reads go through security rules, so this is exactly the app's view of the DB.
+  async function devRenderDbUser() {
+    var el = document.getElementById('dev-db-user');
+    var u = auth.currentUser;
+    if (!u) {
+      el.innerHTML = '<div class="dev-kv">' + window.nivT('dev_not_signed_in_html') + '</div>';
+      return;
+    }
+    el.innerHTML = '<div class="dev-desc">' + window.nivT('dev_loading') + '</div>';
+    var claims = {};
+    try { claims = (await u.getIdTokenResult()).claims || {}; } catch (_) { /* ignore */ }
+    var userDoc = null, userDocErr = null;
+    try {
+      var s = await getDoc(doc(db, 'users', u.uid));
+      userDoc = s.exists() ? s.data() : null;
+      if (!s.exists()) userDocErr = window.nivT('dev_no_user_doc');
+    } catch (e) { userDocErr = (e && e.code) || window.nivT('dev_read_failed'); }
+    var claimRows = Object.keys(claims).filter(function (k) {
+      return ['role', 'orgId', 'company', 'flow', 'geoOk', 'licenseStatus', 'email', 'email_verified'].indexOf(k) >= 0;
+    }).map(function (k) { return '<b>' + devEsc(k) + '</b>: ' + devEsc(JSON.stringify(claims[k])); }).join('<br>');
+    el.innerHTML = '<div class="dev-kv">'
+      + '<b>uid</b>: ' + devEsc(u.uid) + '<br>'
+      + '<b>email</b>: ' + devEsc(u.email || '(none)') + '<br>'
+      + (claimRows ? claimRows + '<br>' : '')
+      + '<b>users/{uid}</b>: ' + (userDocErr ? devEsc(userDocErr) : window.nivT('dev_loaded_below')) + '</div>'
+      + (userDoc ? '<div class="dev-pre">' + devEsc(JSON.stringify(userDoc, null, 2)) + '</div>' : '');
+  }
+
+  async function devBrowseCollection() {
+    var path = (document.getElementById('dev-db-path').value || '').trim().replace(/^\/+|\/+$/g, '');
+    var resEl = document.getElementById('dev-db-results');
+    if (!path) return;
+    resEl.innerHTML = '<div class="dev-desc">' + window.nivT('dev_loading') + '</div>';
+    try {
+      var snap = await getDocs(query(collection(db, path), limit(25)));
+      if (snap.empty) { resEl.innerHTML = '<div class="dev-desc">' + window.nivT('dev_no_docs') + '</div>'; return; }
+      resEl.innerHTML = '';
+      var head = document.createElement('div');
+      head.className = 'dev-desc';
+      head.textContent = snap.size + window.nivT('dev_docs_suffix');
+      resEl.appendChild(head);
+      snap.forEach(function (d) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dev-doc-item';
+        b.textContent = d.id;
+        b.addEventListener('click', async function () {
+          var old = b.nextSibling;
+          if (old && old.className === 'dev-pre') { old.remove(); return; }
+          try {
+            var ds = await getDoc(doc(db, path, d.id));
+            var pre = document.createElement('div');
+            pre.className = 'dev-pre';
+            pre.textContent = JSON.stringify(ds.exists() ? ds.data() : null, null, 2);
+            b.after(pre);
+          } catch (e) {
+            var pre2 = document.createElement('div');
+            pre2.className = 'dev-err';
+            pre2.textContent = window.nivT('dev_read_failed_prefix') + ((e && e.code) || 'error');
+            b.after(pre2);
+          }
+        });
+        resEl.appendChild(b);
+      });
+    } catch (e) {
+      resEl.innerHTML = '<div class="dev-err">' + window.nivT('dev_browse_failed_prefix') + devEsc((e && e.code) || 'error')
+        + window.nivT('dev_browse_failed_suffix') + '</div>';
+    }
+  }
+
+  // ---- UI section: preview the page as a specific company.
+  var DEV_COMPANY_KEY = 'nl_dev_company';
+  function devRenderCompanyOpts() {
+    var cur = devGet(DEV_COMPANY_KEY) || '';
+    var box = document.getElementById('dev-company-opts');
+    box.innerHTML = '';
+    var ids = [''].concat(Object.keys(typeof COMPANIES !== 'undefined' ? COMPANIES : {}));
+    ids.forEach(function (id) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dev-geo-opt' + (cur === id ? ' active' : '');
+      b.textContent = (id ? id : window.nivT('dev_company_auto')) + (cur === id ? ' ✓' : '');
+      b.addEventListener('click', function () {
+        if (id) devSet(DEV_COMPANY_KEY, id); else devDel(DEV_COMPANY_KEY);
+        location.reload();
+      });
+      box.appendChild(b);
+    });
+    var note = document.createElement('div');
+    note.className = 'dev-desc';
+    note.textContent = window.nivT('dev_company_note');
+    box.appendChild(note);
+  }
+
+  // ---- Backend section: project info + function inventory from the server.
+  function devRenderBackendInfo() {
+    var el = document.getElementById('dev-backend-info');
+    var cfg = defaultFirebaseConfig || {};
+    el.innerHTML = '<div class="dev-kv">'
+      + '<b>' + window.nivT('dev_label_project') + '</b>: ' + devEsc(cfg.projectId || '?') + '<br>'
+      + '<b>' + window.nivT('dev_label_functions_region') + '</b>: us-central1<br>'
+      + '<b>' + window.nivT('dev_label_auth_domain') + '</b>: ' + devEsc(cfg.authDomain || '?') + '</div>';
+    document.getElementById('dev-fn-list').innerHTML = '';
+    document.getElementById('dev-ping-result').innerHTML = '';
+  }
+
+  function devRenderFnList(fns) {
+    var el = document.getElementById('dev-fn-list');
+    el.innerHTML = '';
+    (fns || []).forEach(function (f) {
+      var row = document.createElement('div');
+      row.className = 'dev-fn-row';
+      row.innerHTML = '<span class="dev-fn-name">' + devEsc(f.name) + '</span>'
+        + '<span class="dev-fn-type">' + devEsc(f.type) + ' · ' + devEsc(f.region) + '</span>';
+      el.appendChild(row);
+    });
+  }
+
+  async function devPingBackend() {
+    var resEl = document.getElementById('dev-ping-result');
+    resEl.innerHTML = '<div class="dev-desc">' + window.nivT('dev_pinging') + '</div>';
+    try {
+      if (!_devApp) {
+        try { _devApp = initializeApp(defaultFirebaseConfig, 'nivelato-dev-gate'); }
+        catch (_) { _devApp = getApp('nivelato-dev-gate'); }
+        _devAuth = getAuth(_devApp);
+      }
+      if (!_devAuth.currentUser) {
+        await devGoogleGate();
+        if (!_devAuth.currentUser) throw new Error(window.nivT('dev_google_needed'));
+      }
+      var t0 = Date.now();
+      var res = await httpsCallable(getFunctions(_devApp, 'us-central1'), 'devPing')();
+      var ms = Date.now() - t0;
+      var d = res.data || {};
+      resEl.innerHTML = '<div class="dev-kv"><b>ok</b> · ' + ms + window.nivT('dev_ms_roundtrip') + '<br><b>' + window.nivT('dev_label_server_time') + '</b>: '
+        + devEsc(d.now || '?') + '<br><b>' + window.nivT('dev_label_project') + '</b>: ' + devEsc(d.project || '?') + '</div>';
+      if (d.functions) devRenderFnList(d.functions);
+    } catch (e) {
+      var code = (e && e.code) || '';
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        resEl.innerHTML = '<div class="dev-desc">' + window.nivT('dev_signin_cancelled') + '</div>';
+        return;
+      }
+      resEl.innerHTML = '<div class="dev-err">' + window.nivT('dev_ping_failed_prefix') + devEsc((e && e.message) || code || 'error') + '</div>';
+    }
+  }
+
+  window.addEventListener('keydown', function (e) {
+    if (!(e.ctrlKey && e.altKey && !e.metaKey)) return;
+    var k = (e.key || '').toLowerCase();
+    if (k === 'd' && !e.shiftKey) { e.preventDefault(); devToggle(); }
+    else if (k === 'h' && e.shiftKey) { e.preventDefault(); devHide(); }
+  });
+  // Badge reflects an existing unlock on load (DOM may not be ready yet).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', devEnsureDom);
+  } else { devEnsureDom(); }
+
+  // ---- Cross-origin SSO handoff ----
+  // the login page lives here, the app lives over there,
+  // and this is the diplomatic pouch between them. do not shake.
+  // This page lives on login.nivelatolabs.com; the app lives on
+  // app.nivelatolabs.com (and dashboard.nivelatolabs.com). Firebase Auth
+  // sessions are origin-scoped, so after a successful sign-in here we mint
+  // a short-lived custom token for the same uid and hand it to the app's
+  // sso.html, which signs in there and lands on `next`.
+  const APP_ORIGIN = 'https://app.nivelatolabs.com';
+  const SSO_ORIGINS = [APP_ORIGIN, 'https://dashboard.nivelatolabs.com'];
+  function sanitizeNext(n) {
+    if (typeof n !== 'string' || !(n = n.trim())) return null;
+    if (n.charAt(0) === '/') {
+      if (n.charAt(1) === '/' || /[\s\\]/.test(n)) return null;
+      return n;
+    }
+    try {
+      const u = new URL(n);
+      if (u.protocol !== 'https:') return null;
+      if (SSO_ORIGINS.indexOf(u.origin) === -1) return null;
+      return u.toString();
+    } catch (_) { return null; }
+  }
+  // Returns true when the handoff navigation started, false when minting
+  // the token failed (caller shows the form error; the user stays put).
+  // lastSsoError carries the failure reason for the visible diagnostic.
+  let lastSsoError = null;
+  async function ssoHandoff(defaultNext) {
+    const next = sanitizeNext(new URLSearchParams(window.location.search).get('next')) || defaultNext;
+    if (window.location.origin === APP_ORIGIN && next.charAt(0) === '/') {
+      window.location.href = next;
+      return true;
+    }
+    try {
+      // centralFunctions is bound to a separate Firebase app instance
+      // ('nivelato-central'), so httpsCallable can never see the signed-in
+      // user on the default app and never attaches the Authorization header
+      // (→ 401 "Sign in first."). Call the callable endpoint directly with
+      // an explicit ID token instead.
+      const idToken = auth.currentUser ? await auth.currentUser.getIdToken(true) : null;
+      if (!idToken) throw new Error('no-id-token');
+      const resp = await fetch('https://us-central1-nivelato-app.cloudfunctions.net/mintSsoToken', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+        body: JSON.stringify({ data: {} })
+      });
+      const text = await resp.text();
+      let body = null;
+      try { body = JSON.parse(text); } catch (_) { /* non-JSON body */ }
+      const token = body && body.result && body.result.customToken;
+      if (!token) throw new Error('no-custom-token s' + resp.status + ' ' + text.slice(0, 160));
+      // SSO must complete on the destination's origin (Firebase Auth is per-origin).
+      // Dashboard dests use dashboard.nivelatolabs.com/sso.html; app dests use the app origin.
+      const destOrigin = next.indexOf('https://dashboard.nivelatolabs.com') === 0
+        ? 'https://dashboard.nivelatolabs.com' : APP_ORIGIN;
+      const destNext = next;
+      try { sessionStorage.setItem('nivelato_last_handoff', String(Date.now())); } catch (_) {}
+      window.location.replace(destOrigin + '/sso.html#ctoken=' + encodeURIComponent(token)
+        + '&next=' + encodeURIComponent(destNext));
+      return true;
+    } catch (e) {
+      console.error('[Nivelato] SSO handoff failed:', (e && e.code) || e);
+      lastSsoError = (e && (e.code || e.message)) || String(e);
+      return false;
+    }
+  }
+  function ssoFailed(errEl) {
+    if (!errEl) {
+      // The main form's error element may not exist in company/travel views.
+      // Fall back to any visible error container.
+      errEl = document.querySelector('.error-msg');
+    }
+    if (!errEl) return;
+    errEl.textContent = window.nivT('sso_failed');
+    errEl.classList.add('visible');
+  }
+
+  // Beta cascade (env-mark system, Oct 12 2026): a DEV mark set on the
+  // sign-in page enrolls THIS account in the beta update channel; on
+  // company sign-in the user may also have opted the whole company in.
+  // The chord fires pre-auth, so the intent is pending until here. Runs
+  // best-effort: a failure changes nothing and never blocks sign-in. The
+  // email must match the signed-in account or the intent is dropped
+  // (ambiguity = no write). The mark itself stays an alarm, never a gate.
+  async function applyPendingBetaCascade() {
+    // Terminal-path rule (m26): a completed attempt and an email MISMATCH
+    // both drop the intent via clearPendingBeta(). A missing signed-in
+    // user is not terminal (no auth to apply against yet), so the intent
+    // is kept in that case only.
+    let dropIntent = false;
+    try {
+      if (!window.NivEnvMark || !window.NivEnvMark.getPendingBeta) return;
+      const p = window.NivEnvMark.getPendingBeta();
+      if (!p) return;
+      const user = auth.currentUser;
+      if (!user || !user.email) return;
+      // M35: refresh the intent email from the actual sign-in email at
+      // apply time. The snapshot captured at mark-set time is stale when
+      // the natural order was used (mark first, type the email second),
+      // which left it empty and skipped enrollment entirely.
+      if (!p.email) p.email = user.email;
+      if (user.email.toLowerCase() !== String(p.email).toLowerCase()) { dropIntent = true; return; }
+      dropIntent = true;
+      await updateDoc(doc(db, 'users', user.uid), {
+        betaEnrolled: true, betaEnrolledAt: serverTimestamp(), betaChannel: 'beta'
+      });
+      if (p.companyBetaYes === true && p.companyId) {
+        // M36: p.companyId is the UI slug (e.g. "qgc"), not an org doc id.
+        // Resolve the real org from the signed-in user's own doc: its
+        // orgId is the canonical org identifier this same file already
+        // trusts in postAuthRedirect (orgId === 'NJBBG5' for QGC). Never
+        // write to orgs/<slug>. No orgId on the user doc means no company
+        // write at all.
+        let realOrgId = '';
+        try {
+          const userSnap = await getDoc(doc(db, 'users', user.uid));
+          const userData2 = (userSnap && userSnap.exists()) ? (userSnap.data() || {}) : {};
+          realOrgId = String(userData2.orgId || '');
+        } catch (_) { realOrgId = ''; }
+        if (!realOrgId) return;
+        // Company opt-in: enroll the org in beta (mirrors
+        // beta/enroll-company.html), then adopt the beta channel via the
+        // owner-only callable. Direct endpoint call with an explicit ID
+        // token, same pattern as mintSsoToken above (centralFunctions is
+        // bound to a separate app instance and can't attach auth).
+        await updateDoc(doc(db, 'orgs', realOrgId), {
+          betaEnrolled: true, beta: { enrolledAt: serverTimestamp(), enrolledBy: user.uid }
+        });
+        const idToken = await user.getIdToken(true);
+        const resp = await fetch('https://us-central1-nivelato-app.cloudfunctions.net/setOrgUpdateChannel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+          body: JSON.stringify({ data: { channel: 'beta' } })
+        });
+        if (!resp.ok) throw new Error('setOrgUpdateChannel s' + resp.status);
+      }
+    } catch (_) { /* best effort: the mark stays an alarm, never a gate */ }
+    finally {
+      /* finally, not code after the catch: early returns inside the try
+       * (mismatch, missing org) must still drop the intent (m26). */
+      if (dropIntent) {
+        try { if (window.NivEnvMark && window.NivEnvMark.clearPendingBeta) window.NivEnvMark.clearPendingBeta(); } catch (_) {}
+      }
+    }
+  }
+  async function postAuthRedirect() {
+    // Loop breaker: if we just did an SSO handoff within the last 60s, don't
+    // mint another token — something downstream is bouncing us back.
+    try {
+      const lastHandoff = parseInt(sessionStorage.getItem('nivelato_last_handoff') || '0', 10);
+      if (Date.now() - lastHandoff < 60000) {
+        console.warn('[Nivelato] SSO handoff loop detected, holding.');
+        const errEl = document.getElementById('login-error');
+        if (errEl) { errEl.textContent = 'Se detectó un bucle de inicio de sesión. Espera un minuto e inténtalo de nuevo.'; errEl.classList.add('visible'); }
+        return;
+      }
+    } catch (_) {}
+    // flowGate → claims → verdict routing, then SSO handoff to the app.
+    // Beta cascade first: the dev mark's pending beta intent applies here,
+    // post-auth, before any routing decision reads the channel.
+    await applyPendingBetaCascade();
+    const gate = await ensureFlowClaims();
+    if (gate.ok && !gate.cached && routeAfterGate(gate.verdict, gate.reason)) return;
+    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+    const userData = userDoc.data() || {};
+    const role = userData.role;
+    const tier = (userData.tier || 'free').toLowerCase();
+    const isQgc = userData.orgId === 'NJBBG5';
+    // Seed the company-theme fast-path flag for the app pages (QGC = gray theme).
+    seedCompanyThemeFlag(userData);
+    // Adopt the DB-saved language, unless the user explicitly toggled the
+    // language this session (their choice wins over a stale DB read; write
+    // it through now in case the toggle happened while signed out).
+    const dbLang = userData.language;
+    if (typeof sessionExplicitLang === 'string' && (sessionExplicitLang === 'es' || sessionExplicitLang === 'en')) {
+      if (window.__nivelatoSaveLangDb) { try { window.__nivelatoSaveLangDb(sessionExplicitLang); } catch (_) {} }
+    } else if ((dbLang === 'es' || dbLang === 'en') && window.__nivelatoAdoptDbLang) {
+      try { window.__nivelatoAdoptDbLang(dbLang); } catch (_) { /* ignore */ }
+    }
+    // QGC orgs: role-based routing (existing behavior). Personal/external
+    // accounts: the dashboard works for every tier, free included;
+    // upgrading is voluntary via the dashboard's upgrade modal.
+    const dest = isQgc
+      ? ((role === 'owner' || role === 'cotizador') ? 'https://dashboard.nivelatolabs.com/' : 'https://app.nivelatolabs.com/')
+      : 'https://dashboard.nivelatolabs.com/';
+    if (await ssoHandoff(dest)) return;
+    // Token mint failed (e.g. functions not deployed yet): stay on the form.
+    ssoFailed(document.getElementById('login-error'));
+    const btn = document.getElementById('btn-login');
+    if (btn) { btn.disabled = false; btn.textContent = window.nivT('btn_login'); }
+    authBusy = false;
+  }
+
+  async function doLogin(e) {
+    e.preventDefault();
+    if (authBusy) return;
+    authBusy = true;
+    const t = window.nivT;
+    const btn = document.getElementById('btn-login');
+    const errEl = document.getElementById('login-error');
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    if (btn) { btn.disabled = true; btn.textContent = t('btn_login_busy'); }
+    if (errEl) errEl.classList.remove('visible');
+    // The persistence choice must be applied BEFORE the sign-in runs:
+    // Firebase's documented contract is that setPersistence only governs
+    // sessions created after it is set. The save-login prompt therefore
+    // gates the sign-in itself (see promptPersistenceThen below).
+    promptPersistenceThen(async () => {
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        // QGC device trust: this device proved it is QGC. Remember it so
+        // later visits skip geo-detection and go straight to QGC mode.
+        if (QGI) markQgcAuthed();
+        // Remember this account for the "Cuentas usadas" picker.
+        try {
+          const _dn = (auth.currentUser && auth.currentUser.displayName) || '';
+          saveUsedAccount(email, _dn, QGI ? 'qgc' : 'personal');
+        } catch (_) { /* ignore */ }
+        await postAuthRedirect();
+      } catch (err) {
+        // The prompt replaced the form; rebuild it to show the error.
+        renderForm(QGI ? 'qgi' : 'external', true);
+        refreshNotices();
+        const emailEl = document.getElementById('login-email');
+        if (emailEl) emailEl.value = email;
+        const errEl2 = document.getElementById('login-error');
+        if (errEl2) { errEl2.textContent = friendlyError(err && err.code); errEl2.classList.add('visible'); }
+        authBusy = false;
+      }
+    });
+  }
+
+  // "Save login on this device?" — local persistence keeps the session
+  // across restarts; session persistence drops it when the tab closes.
+  // The prompt is shown BEFORE the sign-in it belongs to and gates it:
+  // the chosen persistence is set on the Auth instance first, and only
+  // then does the pending sign-in action run, so the choice genuinely
+  // governs the session that gets created (both sign-in paths, email
+  // and Google, pass through this gate).
+  function showSaveLoginPrompt() {
+    savePromptShown = true;
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+      + '<h1 class="logo">Nivelato<span class="adot">.</span></h1>'
+      + '<div class="tagline">' + t('save_title') + '</div>'
+      + '<p style="color:#a7a7b3;font-size:14px;line-height:1.6;margin:0 0 24px">' + t('save_q') + '</p>'
+      + '<button class="btn-primary" id="btn-save-yes" type="button">' + t('save_yes') + '</button>'
+      + '<button class="btn-primary" id="btn-save-no" type="button" style="background:transparent;border:1px solid #2c2c31;color:#f2f1ec;margin-top:10px">' + t('save_no') + '</button>'
+      + '<div class="error-msg" id="login-error" role="alert"></div>';
+    window.nivApplyLang();
+    document.getElementById('btn-save-yes').addEventListener('click', () => finishPersistenceChoice(browserLocalPersistence));
+    document.getElementById('btn-save-no').addEventListener('click', () => finishPersistenceChoice(browserSessionPersistence));
+  }
+
+  // Gate a sign-in action behind the save-login prompt. The action runs
+  // once the user picks a persistence (or immediately re-runs the prompt
+  // render on language change, via __nivelatoOnLangChange).
+  function promptPersistenceThen(action) {
+    pendingAuthAction = action;
+    showSaveLoginPrompt();
+  }
+
+  async function finishPersistenceChoice(persistence) {
+    if (persistenceChoiceBusy) return;
+    persistenceChoiceBusy = true;
+    const yesBtn = document.getElementById('btn-save-yes');
+    const noBtn = document.getElementById('btn-save-no');
+    if (yesBtn) yesBtn.disabled = true;
+    if (noBtn) noBtn.disabled = true;
+    try {
+      await setPersistence(auth, persistence);
+    } catch (_) { /* best effort; default persistence still applies */ }
+    const action = pendingAuthAction;
+    pendingAuthAction = null;
+    savePromptShown = false;
+    persistenceChoiceBusy = false;
+    if (action) await action();
+  }
+
+
+  function friendlyError(code) {
+    const t = window.nivT;
+    const map = {
+      'auth/invalid-email':          t('err_invalid_email'),
+      'auth/user-not-found':         t('err_invalid_credential'),
+      'auth/wrong-password':         t('err_invalid_credential'),
+      'auth/invalid-credential':     t('err_invalid_credential'),
+      'auth/missing-password':       t('err_missing_password'),
+      'auth/missing-email':          t('err_missing_email'),
+      'auth/email-already-in-use':   t('err_email_in_use'),
+      'auth/weak-password':          t('err_weak_password'),
+      'auth/too-many-requests':      t('err_too_many'),
+      'missing-name':                t('err_missing_name'),
+      'missing-orgname':             t('err_missing_orgname'),
+      'missing-code':                t('err_missing_code'),
+      'invalid-code':                t('err_invalid_code'),
+    };
+    return map[code] || t('err_invalid_credential');
+  }
+
+  // ---- Travel verification backend seam (TODO) ----
+  // for when the laptop says "not PR" but the heart says "PR"
+  // A QGC-trusted device outside PR can request a 30-day travel grant via
+  // an email verification link. The frontend flow (detection, UI, grant
+  // check, link redeem) is fully built below; the two functions here are
+  // the backend seam, currently stubs.
+  //
+  // TODO(backend): implement requestTravelVerification.
+  //   Firebase callable `requestTravelVerification`:
+  //   - input: { email } — must belong to an existing user in the QGC org
+  //   - generates a single-use token tied to the user's UID, expiring in 1 hour
+  //   - sends the verification email via the existing email infra; the link is
+  //     https://login.nivelatolabs.com/?travel_verify=<token>
+  //   - resolves on success, rejects with { code } on failure
+  async function sendTravelVerificationEmail(email) {
+    const { data } = await httpsCallable(centralFunctions, 'requestTravelVerification')({ email });
+    return data;
+  }
+  //
+  // TODO(backend): implement redeemTravelVerification.
+  //   Firebase callable `redeemTravelVerification`:
+  //   - input: { token } — single-use, UID-tied, 1h expiry
+  //   - validates and burns the token
+  //   - resolves { validUntil } where validUntil = Date.now() + 30 days (epoch ms)
+  //   - rejects with { code: 'invalid-travel-token' } on bad/expired/used token
+  async function redeemTravelVerification(token) {
+    const { data } = await httpsCallable(centralFunctions, 'redeemTravelVerification')({ token });
+    return data;
+  }
+
+  // ---- Travel verification UI ----
+  // Shown on QGC-trusted devices that are definitively outside PR without a
+  // valid travel grant. QGC gray themed. Re-rendered on language change
+  // like the other dynamic screens.
+  let travelShown = false;    // travel verification screen is visible
+  let travelSent = false;     // the verification link was sent
+  let travelLinkError = false; // a ?travel_verify link was invalid/expired
+
+  // ---- Company-branded signin ----
+  // put on the company costume. the logo goes on, the personality stays.
+  // APPROVAL LIST: only companies in this object appear in the PR domain
+  // selector and the "Join a company" selector. Adding a company here =
+  // Benj's manual approval (after the meeting/contact process described
+  // in the inquiry text). An empty object hides the selectors gracefully.
+  // Per-company signin screens (mockup). name/logo are shown as-is (proper
+  // nouns); signinText, inquiryText and signinButton are per-language;
+  // employeeNotice names a dictionary key (employeeNoticeKey) so the notice
+  // renders fully in the active language (M40: the old plain string mixed
+  // an English prefix with a Spanish body in both modes).
+  // location is optional and used for nearest-first proximity sorting.
+  // domains is optional; used for manual company lookup by domain.
+  const COMPANIES = {
+    qgc: {
+      name: 'Quality Glazing Contractors',
+      logo: './qgc-logo.jpg',
+      location: { lat: 18.4663, lng: -66.1057, label: 'San Juan, PR' },
+      domains: ['qgipr.com'],
+      domainPlaceholder: 'qgipr.com', // shown in the manual "sign into another company" domain input
+      signinText: {
+        es: 'Ingresa las credenciales de tu empresa para iniciar sesión.',
+        en: 'Enter your company credentials to sign in.'
+      },
+      employeeNoticeKey: 'employee_notice_qgc',
+      inquiryText: {
+        es: 'Si eres una empresa y quieres usar Nivelato en PR, contáctanos por el correo en nivelatolabs.com > Contacto. Recibirás una respuesta dentro de 1 semana. Ten en cuenta que este acceso se otorga después de una reunión para asegurarnos de que obtengas las funciones adecuadas para tu empresa.',
+        en: 'If you are a company wanting to use Nivelato in PR. Please contact using the email at nivelatolabs.com > Contact. You will get a response within 1 week. Please note that this access will be given after a meeting and contacting to make sure you get the right features for your company.'
+      },
+      signinButton: {
+        es: 'Iniciar sesión en Quality Glazing Contractors',
+        en: 'Sign into Quality Glazing Contractors'
+      },
+      signinWebhook: null, // optional: URL for webhook-driven custom signin UI (see contract below)
+      travelNotice: true, // show the outside-PR travel notice on this company's signin screen
+    }
+  };
+  function companyText(company, field) {
+    const lang = (window.nivGetLang && window.nivGetLang()) || 'es';
+    const v = company[field] || {};
+    return v[lang] || v.es || '';
+  }
+
+  // ---- Company proximity (nearest-first selector) ----
+  // User coords come from the same IP-geo provider the page already trusts
+  // (ipapi.co/json); fetched lazily once, only when the selector opens.
+  // No coords = approval-list (config) order.
+  let userCoords = null;
+  let userCoordsFetched = false;
+  function ensureUserCoords() {
+    if (userCoordsFetched || userCoords) return;
+    userCoordsFetched = true;
+    fetch('https://ipapi.co/json/')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (j && isFinite(+j.latitude) && isFinite(+j.longitude)) {
+          userCoords = { lat: +j.latitude, lng: +j.longitude };
+          if (companySelectShown) { renderCompanySelectUI(); refreshNotices(); } // re-sort nearest-first
+        }
+      })
+      .catch(function () { /* keep config order */ });
+  }
+  function haversineKm(a, b) {
+    const R = 6371;
+    const dLat = (b.lat - a.lat) * Math.PI / 180;
+    const dLng = (b.lng - a.lng) * Math.PI / 180;
+    const s = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+      + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180)
+      * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(s));
+  }
+  function sortedCompanies() {
+    const list = Object.keys(COMPANIES).map(function (id) {
+      const c = {};
+      for (const k in COMPANIES[id]) c[k] = COMPANIES[id][k];
+      c.id = id;
+      return c;
+    });
+    if (!userCoords) return list;
+    list.sort(function (x, y) {
+      const xl = x.location, yl = y.location;
+      if (xl && yl) return haversineKm(userCoords, xl) - haversineKm(userCoords, yl);
+      if (xl) return -1;
+      if (yl) return 1;
+      return 0;
+    });
+    return list;
+  }
+
+  // ---- Add-account + cant-add views (mockup) ----
+  // Dedicated screens reached from the "Añadir otra cuenta" picker button.
+  // In QGC mode, an added account must be QGC-verified (users/{uid}.isQGC);
+  // otherwise the cant-add error screen is shown instead.
+  let addAccountShown = false; // add-account screen is visible
+  let cantAddShown = false;    // cant-add error screen is visible
+  let companyShown = null;     // company-branded signin screen is visible (company id)
+  let companySelectShown = false; // "join a company" selector is visible
+  let reauthShown = null;      // password-only re-auth screen is visible (account object)
+
+  // ---- View navigation: slide animations + history ----
+  // slides. history. the back button works. we checked.
+  // Views: 'main' | 'add-account' | 'company-select' | 'cant-add' | 'reauth' | 'company:<id>'.
+  // Forward navigation: slide in from the right + pushState. Back (chevron or
+  // device back button): slide in from the left via the popstate handler.
+  // Language-toggle and geo-settle re-renders call render*UI() directly, so
+  // they never animate and never touch history.
+  let currentView = 'main';
+  const VIEW_ORDER = { 'main': 0, 'add-account': 1, 'company-select': 2, 'cant-add': 2, 'reauth': 1 };
+  function viewOrder(v) {
+    if (typeof v === 'string' && v.indexOf('company:') === 0) return 3;
+    return VIEW_ORDER[v] !== undefined ? VIEW_ORDER[v] : 0;
+  }
+  function animateView(direction) {
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    const cls = direction === 'back' ? 'niv-anim-back' : 'niv-anim-fwd';
+    card.classList.remove('niv-anim-fwd', 'niv-anim-back');
+    void card.offsetWidth; // restart the animation when re-adding the class
+    card.classList.add(cls);
+    setTimeout(function () { card.classList.remove(cls); }, 320);
+  }
+  function renderView(view) {
+    if (view === 'main') {
+      addAccountShown = false; cantAddShown = false; companyShown = null; companySelectShown = false; reauthShown = null;
+      if (QGI) qgcEscape = false;
+      renderForm(QGI ? 'qgi' : 'external', true);
+      refreshNotices();
+    } else if (view === 'add-account') {
+      addAccountShown = true; cantAddShown = false; companyShown = null; companySelectShown = false;
+      renderAddAccountUI();
+    } else if (view === 'company-select') {
+      companySelectShown = true; addAccountShown = false; cantAddShown = false; companyShown = null; reauthShown = null;
+      if (QGI) qgcEscape = false;
+      renderCompanySelectUI();
+    } else if (view === 'cant-add') {
+      cantAddShown = true; addAccountShown = false; companyShown = null; companySelectShown = false; reauthShown = null;
+      renderCantAddUI();
+    } else if (view === 'reauth') {
+      // Password-only re-auth: the account is fixed, only the password is asked.
+      if (!reauthShown || !reauthShown.email) { backToMainView(); return; }
+      addAccountShown = false; cantAddShown = false; companyShown = null; companySelectShown = false;
+      renderReauthUI();
+    } else if (typeof view === 'string' && view.indexOf('company:') === 0) {
+      const id = view.slice('company:'.length);
+      if (!COMPANIES[id]) return; // unknown company: ignore stale state
+      companyShown = id; addAccountShown = false; cantAddShown = false; companySelectShown = false; reauthShown = null;
+      renderCompanyUI();
+    } else {
+      return;
+    }
+    currentView = view;
+    // m24: every render above rebuilt #app-card and wiped the notice
+    // elements, so refresh them here for ALL navigation paths, not only
+    // the setLang-triggered renders that called refreshNotices before.
+    refreshNotices();
+  }
+  function navigateTo(view) {
+    try { history.pushState({ nivelatoView: view, qgi: QGI, qgcEscape: qgcEscape }, ''); } catch (_) { /* ignore */ }
+    renderView(view);
+    animateView('forward');
+  }
+  function goBackView() {
+    // Single code path: the chevron goes through history, and the popstate
+    // handler below renders the previous view with the back animation.
+    try { history.back(); } catch (_) { backToMainView(); }
+  }
+  window.addEventListener('popstate', function (e) {
+    if (travelShown || pendingShown || savePromptShown) return; // auth flows own the back button
+    const st = e && e.state;
+    if (!st || typeof st.nivelatoView !== 'string') return; // leaving the page / foreign state
+    if (typeof st.qgi === 'boolean') QGI = st.qgi;
+    if (typeof st.qgcEscape === 'boolean') qgcEscape = st.qgcEscape;
+    const view = st.nivelatoView;
+    const dir = viewOrder(view) < viewOrder(currentView) ? 'back' : 'forward';
+    renderView(view);
+    animateView(dir);
+  });
+
+  function backToMainView() {
+    addAccountShown = false;
+    cantAddShown = false;
+    companyShown = null;
+    companySelectShown = false;
+    reauthShown = null;
+    renderForm(QGI ? 'qgi' : 'external', true);
+    refreshNotices();
+  }
+
+  // QGC mode entry: the domain selector IS the root view. renderForm('qgi')
+  // sets QGI + the gray theme (its main-view HTML is immediately replaced).
+  // Back from a company signin returns here; back from here exits the page.
+  function enterQgiDomainSelector() {
+    renderForm('qgi', true);
+    renderView('company-select');
+    try { history.replaceState({ nivelatoView: 'company-select', qgi: true, qgcEscape: false }, ''); } catch (_) { /* ignore */ }
+  }
+
+  // Personal account escape hatch for PR: leave QGC mode and add a personal
+  // (external) account. Open to every tier: after sign-in the account lands
+  // on the dashboard, and upgrading is voluntary via the dashboard's
+  // upgrade modal (no Pro gate on personal accounts).
+  function switchToPersonalMode() {
+    qgcEscape = QGI; // remember we came from the QGC screen
+    renderForm('external', true);
+    navigateTo('add-account');
+  }
+
+  const GOOGLE_G_SVG = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">'
+    + '<path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/>'
+    + '<path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>'
+    + '<path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>'
+    + '<path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/>'
+    + '</svg>';
+
+  function showAddAccountUI() {
+    navigateTo('add-account');
+  }
+
+  function renderAddAccountUI() {
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    const qgi = QGI;
+    card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+      + '<button type="button" class="back-btn" id="addaccount-back" aria-label="' + t('go_back') + '">&#8249;</button>'
+      + '<div class="split">'
+      + '<div class="brand-panel">'
+      + '<h1 class="logo' + (qgi ? ' qgi' : '') + '" style="font-size:32px">' + t('add_account_title') + '</h1>'
+      + '<div class="tagline">' + t('add_account_sub') + '</div>'
+      + '</div>'
+      + '<div class="main-panel" data-envmark-card>'
+      + '<form id="addaccount-form" autocomplete="on" onsubmit="return false">'
+      + '<div class="field">'
+      + '<label for="addaccount-email">' + t('label_email') + '</label>'
+      + '<input type="email" id="addaccount-email" name="email" placeholder="' + t('ph_email') + '" autocomplete="email" />'
+      + '</div>'
+      + '<div class="field">'
+      + '<label for="addaccount-pass">' + t('label_password') + '</label>'
+      + '<input type="password" id="addaccount-pass" name="password" placeholder="' + t('ph_password') + '" autocomplete="current-password" />'
+      + '</div>'
+      + '<button class="btn-primary' + (qgi ? ' qgi-btn' : '') + '" id="btn-addaccount" type="submit">' + t('add_account_submit') + '</button>'
+      + '</form>'
+      + '<div class="or-sep"><span>' + t('or_sep') + '</span></div>'
+      + '<button type="button" class="btn-google" id="btn-google">' + GOOGLE_G_SVG + '<span>' + t('signin_google') + '</span></button>'
+      + (Object.keys(COMPANIES).length && !qgcEscape
+          ? '<button type="button" class="btn-google" id="btn-join-company" style="margin-top:12px"><span>' + t('join_company') + '</span></button>'
+          : '')
+      + '<div class="error-msg" id="addaccount-error" role="alert"></div>'
+      + '</div>'
+      + '</div>';
+    window.nivApplyLang();
+    document.getElementById('addaccount-form').addEventListener('submit', doAddAccountSubmit);
+    document.getElementById('btn-google').addEventListener('click', doGoogleSignIn);
+    document.getElementById('addaccount-back').addEventListener('click', goBackView);
+    const joinBtn = document.getElementById('btn-join-company');
+    if (joinBtn) joinBtn.addEventListener('click', function () { navigateTo('company-select'); });
+    const emailEl = document.getElementById('addaccount-email');
+    if (emailEl) emailEl.focus();
+  }
+
+  // ---- Password-only re-auth ----
+  // A sign-in case linked directly to one account: the email is fixed and
+  // shown (not editable), only the password is asked. Used when tapping a
+  // used-account pill, and available for any flow that needs re-auth.
+  function renderReauthUI() {
+    const t = window.nivT;
+    const acct = reauthShown || {};
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    const qgi = QGI;
+    const label = acct.displayName || acct.email || '';
+    card.innerHTML = '<button type="button" class="back-btn" id="reauth-back" aria-label="' + t('go_back') + '">&#8249;</button>'
+      + '<div class="split">'
+      + '<div class="brand-panel">'
+      + '<h1 class="logo' + (qgi ? ' qgi' : '') + '" style="font-size:32px">' + t('reauth_title') + '</h1>'
+      + '<div class="tagline">' + t('reauth_sub') + '</div>'
+      + '</div>'
+      + '<div class="main-panel" data-envmark-card>'
+      + '<div class="reauth-acct">'
+      + '<span class="account-avatar">' + escapeHtml(initialsOf(label)) + '</span>'
+      + '<span class="account-meta">'
+      + '<span class="account-name">' + escapeHtml(acct.displayName || acct.email || '') + '</span>'
+      + (acct.displayName ? '<span class="account-email">' + escapeHtml(acct.email || '') + '</span>' : '')
+      + '</span>'
+      + '</div>'
+      + '<form id="reauth-form" autocomplete="on" onsubmit="return false">'
+      + '<div class="field">'
+      + '<label for="reauth-pass">' + t('label_password') + '</label>'
+      + '<input type="password" id="reauth-pass" name="password" placeholder="' + t('ph_password') + '" autocomplete="current-password" />'
+      + '</div>'
+      + '<button class="btn-primary' + (qgi ? ' qgi-btn' : '') + '" id="btn-reauth" type="submit">' + t('reauth_submit') + '</button>'
+      + '</form>'
+      + '<button type="button" class="btn-link" id="reauth-switch">' + t('reauth_switch') + '</button>'
+      + '<div class="error-msg" id="reauth-error" role="alert"></div>'
+      + '</div>'
+      + '</div>';
+    window.nivApplyLang();
+    document.getElementById('reauth-form').addEventListener('submit', doReauthSubmit);
+    document.getElementById('reauth-back').addEventListener('click', goBackView);
+    document.getElementById('reauth-switch').addEventListener('click', backToMainView);
+    const passEl = document.getElementById('reauth-pass');
+    if (passEl) passEl.focus();
+  }
+
+  function reauthError(msg) {
+    const errEl = document.getElementById('reauth-error');
+    if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+  }
+
+  async function doReauthSubmit(e) {
+    if (e) e.preventDefault();
+    if (authBusy) return;
+    const acct = reauthShown;
+    if (!acct || !acct.email) { backToMainView(); return; }
+    authBusy = true;
+    const t = window.nivT;
+    const btn = document.getElementById('btn-reauth');
+    const errEl = document.getElementById('reauth-error');
+    if (errEl) errEl.classList.remove('visible');
+    if (btn) { btn.disabled = true; btn.textContent = t('btn_login_busy'); }
+    const pass = document.getElementById('reauth-pass').value || '';
+    if (!pass) {
+      reauthError(friendlyError('auth/missing-password'));
+      if (btn) { btn.disabled = false; btn.textContent = t('reauth_submit'); }
+      authBusy = false;
+      return;
+    }
+    // Persistence choice first, then the sign-in (see doLogin).
+    promptPersistenceThen(async () => {
+      try {
+        const cred = await signInWithEmailAndPassword(auth, acct.email, pass);
+        try {
+          const _dn = (cred.user && cred.user.displayName) || '';
+          saveUsedAccount(acct.email, _dn, QGI ? 'qgc' : 'personal');
+        } catch (_) { /* ignore */ }
+        reauthShown = null;
+        await postAuthRedirect();
+      } catch (err) {
+        // The prompt replaced the reauth screen; rebuild it for the error.
+        renderReauthUI();
+        reauthError(friendlyError(err && err.code));
+        authBusy = false;
+      }
+    });
+  }
+
+  // QGC check for added accounts: the signed-in user must be QGC-verified
+  // (users/{uid}.isQGC, the same flag the QGI signup flow writes).
+  async function isQgcVerified(uid) {
+    try {
+      const snap = await getDoc(doc(db, 'users/' + uid));
+      return !!(snap.exists() && snap.data() && snap.data().isQGC === true);
+    } catch (_) { return false; }
+  }
+
+  // Shared post-signin path for the add-account screen (email or Google).
+  // Seed the company-theme fast-path flag for the app pages.
+  // QGC users get the gray theme; everyone else gets standard Nivelato.
+  // Best-effort: the app pages re-resolve from the user doc anyway.
+  function seedCompanyThemeFlag(userData) {
+    try {
+      const qgc = !!userData && (userData.isQGC === true || userData.company === 'qgc');
+      localStorage.setItem('nivelato_company_theme', qgc ? 'qgc' : 'standard');
+    } catch (_) { /* ignore */ }
+  }
+
+  async function finishAddAccountSignIn(user) {
+    const t = window.nivT;
+    const email = (user && user.email) || '';
+    if (QGI) {
+      const ok = await isQgcVerified(user.uid);
+      if (!ok) {
+        try { await signOut(auth); } catch (_) { /* ignore */ }
+        authBusy = false;
+        navigateTo('cant-add');
+        return;
+      }
+      markQgcAuthed();
+      seedCompanyThemeFlag({ isQGC: true });
+    } else {
+      // Non-QGI add-account: best-effort doc read to seed the theme flag.
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        seedCompanyThemeFlag(snap.exists() ? snap.data() : null);
+      } catch (_) { /* app pages re-resolve */ }
+    }
+    try {
+      const _dn = (user && user.displayName) || '';
+      saveUsedAccount(email, _dn, QGI ? 'qgc' : 'personal');
+    } catch (_) { /* ignore */ }
+    addAccountShown = false;
+    // The persistence choice was already applied before this sign-in ran
+    // (both add-account callers gate on promptPersistenceThen).
+    await postAuthRedirect();
+  }
+
+  function addAccountError(msg) {
+    const errEl = document.getElementById('addaccount-error');
+    if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+  }
+
+  async function doAddAccountSubmit(e) {
+    if (e) e.preventDefault();
+    if (authBusy) return;
+    authBusy = true;
+    const t = window.nivT;
+    const btn = document.getElementById('btn-addaccount');
+    const errEl = document.getElementById('addaccount-error');
+    if (errEl) errEl.classList.remove('visible');
+    if (btn) { btn.disabled = true; btn.textContent = t('btn_login_busy'); }
+    const email = (document.getElementById('addaccount-email').value || '').trim();
+    const pass = document.getElementById('addaccount-pass').value || '';
+    const invalid = !email ? 'auth/missing-email'
+      : (email.indexOf('@') < 0 ? 'auth/invalid-email'
+      : (!pass ? 'auth/missing-password' : null));
+    if (invalid) {
+      addAccountError(friendlyError(invalid));
+      if (btn) { btn.disabled = false; btn.textContent = t('add_account_submit'); }
+      authBusy = false;
+      return;
+    }
+    // Persistence choice first, then the sign-in (see doLogin).
+    promptPersistenceThen(async () => {
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        await finishAddAccountSignIn(cred.user);
+      } catch (err) {
+        // The prompt replaced the add-account screen; rebuild for the error.
+        renderAddAccountUI();
+        addAccountError(friendlyError(err && err.code));
+        authBusy = false;
+      }
+    });
+  }
+
+  async function doGoogleSignIn() {
+    if (authBusy) return;
+    authBusy = true;
+    const t = window.nivT;
+    const btn = document.getElementById('btn-google');
+    const errEl = document.getElementById('addaccount-error');
+    if (errEl) errEl.classList.remove('visible');
+    if (btn) btn.disabled = true;
+    // Persistence choice first, then the sign-in (see doLogin). The
+    // choice click is the user gesture; setPersistence resolves locally
+    // before the popup opens.
+    promptPersistenceThen(async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        const cred = await signInWithPopup(auth, provider);
+        await finishAddAccountSignIn(cred.user);
+      } catch (err) {
+        const code = err && err.code;
+        // The prompt replaced the add-account screen; rebuild it so the
+        // user lands back where they started.
+        renderAddAccountUI();
+        // User dismissed the popup: not an error worth surfacing.
+        if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+          addAccountError(friendlyError(code));
+        }
+        authBusy = false;
+      }
+    });
+  }
+
+  function showCantAddUI() {
+    navigateTo('cant-add');
+  }
+
+  function renderCantAddUI() {
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+      + '<button type="button" class="back-btn" id="cantadd-back" aria-label="' + t('go_back') + '">&#8249;</button>'
+      + '<div class="cantadd-row">'
+      + '<div>'
+      + '<h1 class="cantadd-title">' + t('cant_add_title') + '</h1>'
+      + '<p class="cantadd-msg">' + t('cant_add_msg') + '</p>'
+      + '</div>'
+      + '<button type="button" class="btn-google" id="btn-cantadd-back"><span>' + t('go_back') + '</span></button>'
+      + '</div>';
+    window.nivApplyLang();
+    const go = function () { goBackView(); };
+    document.getElementById('cantadd-back').addEventListener('click', go);
+    document.getElementById('btn-cantadd-back').addEventListener('click', go);
+  }
+
+  // ---- "Join a company" selector view ----
+  // Lists approved companies (COMPANIES only), nearest-first when user
+  // coords are known. NOT PR-gated; the approval list itself is the gate.
+  // Manual domain entry at the bottom can only reach approved companies.
+  function normalizeDomain(raw) {
+    return (raw || '').toLowerCase().trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .split('/')[0]
+      .split('?')[0];
+  }
+  function findCompanyByDomain(domain) {
+    var d = normalizeDomain(domain);
+    if (!d) return null;
+    var ids = Object.keys(COMPANIES);
+    for (var i = 0; i < ids.length; i++) {
+      var c = COMPANIES[ids[i]];
+      var domains = c.domains || [];
+      for (var j = 0; j < domains.length; j++) {
+        if (normalizeDomain(domains[j]) === d) return ids[i];
+      }
+    }
+    return null;
+  }
+  // Ephemeral company-select UI state. renderCompanySelectUI rebuilds the
+  // card with innerHTML on every render (view entry, language change, geo
+  // re-sort, history back), which used to reset the companies list scroll
+  // and the domain form: Add personal account -> back landed on a fresh
+  // selector. Listeners bound in the render keep this snapshot current and
+  // the render restores from it (same idea as renderForm's collectValues).
+  // Language and the QGI mode flag need no snapshot: language lives in the
+  // classic script's store and QGI/qgcEscape ride the history state.
+  const companySelectUiState = { scroll: 0, domainOpen: false, domainValue: '' };
+  function renderCompanySelectUI() {
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    const qgi = QGI;
+    // QGC mode entry: the selector is titled "Entrar con..." and shows only
+    // the approved pills (clean, per the QGC mockup). Outside QGC mode it is
+    // the "Join a company" flow with Nearby header + manual domain entry.
+    const pills = sortedCompanies().map(function (c) {
+      const loc = c.location && c.location.label
+        ? '<span class="account-kind">' + escapeHtml(c.location.label) + '</span>' : '';
+      return '<button type="button" class="account-pill" data-select-company="' + escapeHtml(c.id) + '">'
+        + '<span class="account-avatar account-avatar-logo"><img src="' + escapeHtml(c.logo) + '" alt="' + escapeHtml(c.name) + '" /></span>'
+        + '<span class="account-meta"><span class="account-name">' + escapeHtml(c.name) + '</span>' + loc + '</span></button>';
+    }).join('');
+    if (qgi) {
+      // QGC mockup layout: left = Nivelato branding + PR-only notice + logo,
+      // right = "Entrar con..." label + company pills. No back button (root view).
+      card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+        + '<div class="split">'
+        + '<div class="brand-panel" style="text-align:center">'
+        + '<h1 class="logo qgi">Nivelato</h1>'
+        + '<div class="tagline">' + t('tagline_qgc_brand') + '</div>'
+        + '<div class="qgc-only-notice">' + t('qgc_only_msg') + '</div>'
+        + '<div class="brand-logo-box"><img src="./qgc-logo.jpg" alt="QGC" /></div>'
+        + '</div>'
+        + '<div class="main-panel pinned-panel" data-envmark-card>'
+        + '<div class="accounts-title">' + t('signin_with') + '</div>'
+        + '<div id="company-select-list" class="scroll-region">' + pills
+        + '</div>'
+        + '<button type="button" class="account-pill pinned-action" id="btn-personal-account">'
+        + '<span class="account-avatar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg></span>'
+        + '<span class="account-meta"><span class="account-name">' + t('personal_account') + '</span></span></button>'
+        + '</div>'
+        + '</div>';
+    } else {
+      const selTitle = t('choose_company');
+      card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+        + '<button type="button" class="back-btn" id="companyselect-back" aria-label="' + t('go_back') + '">&#8249;</button>'
+        + '<div class="split">'
+        + '<div class="brand-panel">'
+        + '<h1 class="logo" style="font-size:32px">' + selTitle + '</h1>'
+        + '</div>'
+        + '<div class="main-panel" data-envmark-card>'
+        + '<div class="accounts-title">' + t('nearby') + '</div>'
+        + '<div id="company-select-list" class="scroll-region">' + pills + '</div>'
+        + '<button type="button" class="btn-google" id="btn-another-company" style="margin-top:16px"><span>' + t('or_signin_another') + '</span></button>'
+        + '<form id="company-domain-form" style="display:none;margin-top:12px" onsubmit="return false">'
+        + '<div class="field">'
+        + '<input type="text" id="company-domain-input" placeholder="' + escapeHtml(t('company_domain_ph')) + '" autocomplete="off" autocapitalize="off" spellcheck="false" />'
+        + '</div>'
+        + '<button type="submit" class="btn-primary" id="btn-find-company" style="margin-top:12px"><span>' + t('find_company') + '</span></button>'
+        + '<div class="error-msg" id="company-domain-error" role="alert"></div>'
+        + '</form>'
+        + '</div>'
+        + '</div>';
+    }
+    window.nivApplyLang();
+    if (!qgi) {
+      document.getElementById('companyselect-back').addEventListener('click', goBackView);
+    } else {
+      // Personal account option for PR: drop out of QGC mode into the
+      // standard external (personal) sign-in flow.
+      const pb = document.getElementById('btn-personal-account');
+      if (pb) pb.addEventListener('click', switchToPersonalMode);
+    }
+    document.getElementById('company-select-list').addEventListener('click', function (e) {
+      const b = e.target && e.target.closest ? e.target.closest('[data-select-company]') : null;
+      if (!b) return;
+      const id = b.getAttribute('data-select-company');
+      if (id && COMPANIES[id]) showCompanyUI(id);
+    });
+    if (!qgi) {
+      document.getElementById('btn-another-company').addEventListener('click', function () {
+        const f = document.getElementById('company-domain-form');
+        const showing = f.style.display !== 'none';
+        f.style.display = showing ? 'none' : 'block';
+        companySelectUiState.domainOpen = !showing;
+        if (!showing) {
+          const inp = document.getElementById('company-domain-input');
+          const err = document.getElementById('company-domain-error');
+          err.classList.remove('visible'); err.textContent = '';
+          if (inp) inp.focus();
+        }
+      });
+      document.getElementById('company-domain-form').addEventListener('submit', function () {
+        const inp = document.getElementById('company-domain-input');
+        const err = document.getElementById('company-domain-error');
+        const id = findCompanyByDomain(inp ? inp.value : '');
+        if (id) {
+          showCompanyUI(id);
+        } else {
+          err.textContent = t('company_not_found');
+          err.classList.add('visible');
+        }
+      });
+    }
+    // Restore the snapshotted UI state (see companySelectUiState above) and
+    // keep it current: without this, every innerHTML rebuild (Add personal
+    // account -> back, language toggle, geo re-sort) reset the list scroll
+    // and closed/cleared the domain form.
+    const listEl = document.getElementById('company-select-list');
+    if (listEl) {
+      listEl.scrollTop = companySelectUiState.scroll;
+      listEl.addEventListener('scroll', function () {
+        companySelectUiState.scroll = listEl.scrollTop;
+      }, { passive: true });
+    }
+    if (!qgi) {
+      const dForm = document.getElementById('company-domain-form');
+      const dInp = document.getElementById('company-domain-input');
+      if (dForm && companySelectUiState.domainOpen) dForm.style.display = 'block';
+      if (dInp) {
+        if (companySelectUiState.domainValue) dInp.value = companySelectUiState.domainValue;
+        dInp.addEventListener('input', function () {
+          companySelectUiState.domainValue = dInp.value;
+        });
+      }
+    }
+    ensureUserCoords(); // lazy proximity; re-renders nearest-first when coords land
+  }
+
+  // ---- Company-branded signin view ----
+  // Left: company name + custom signin text + custom disclaimer.
+  // Right: back chevron + company pill (context, not tappable) + email/password form.
+  function showCompanyUI(id) {
+    if (!COMPANIES[id]) return;
+    navigateTo('company:' + id);
+  }
+
+  // ---- Webhook-driven custom company signin ----
+  //
+  // ARCHITECTURE (Benj's rule): the Nivelato account ALWAYS stands as the
+  // identity, even with custom company steps. The webhook adds verification
+  // steps; it does NOT replace authentication. It must return a Firebase
+  // custom token for the user's Nivelato account.
+  //
+  // How a company integrates (hand this to the company dev):
+  // 1. We provision the approved company a Firebase Admin SDK service account
+  //    (or a Nivelato backend endpoint that mints on their behalf). With it
+  //    they mint Firebase custom tokens for their users' Nivelato accounts:
+  //    admin.auth().createCustomToken(nivelatoUid).
+  // 2. They implement two HTTPS endpoints (one URL may handle both):
+  //
+  //    SPEC (handshake): POST { company: "<id>", lang: "es"|"en", mode: "spec" }
+  //    returns, e.g.:
+  //    {
+  //      "steps": [
+  //        { "id": "email", "type": "email", "label": "Email" },
+  //        { "id": "password", "type": "password", "label": "Password" },
+  //        { "id": "employee_id", "type": "text", "label": "Employee ID",
+  //          "placeholder": "QGC-1234", "required": true }
+  //      ],
+  //      "baseAuth": "nivelato",
+  //      "submit": { "url": "https://company.com/api/verify", "method": "POST" },
+  //      "notice": "Optional extra notice text for this signin."
+  //    }
+  //    Supported step types: "email", "password", "text", "tel". Unknown
+  //    types are ignored with a console warning. All labels, placeholders
+  //    and notices come from the webhook; we do not localize custom fields.
+  //    "baseAuth": "nivelato" (optional) means: run our standard Firebase
+  //    email/password FIRST, then render these steps (e.g. a 2FA code on top
+  //    of email/password). Omit it when the company verifies fully on their
+  //    side (SAML/IdP handshake, employee-ID lookup, ...).
+  //
+  //    SUBMIT: POST { company, lang, uid, fields: { stepId: value } }
+  //      - uid is the Firebase uid when baseAuth ran first, else null.
+  //    returns { "ok": true, "customToken": "<firebase-custom-token>" }
+  //    or      { "ok": false, "error": "human-readable message" }.
+  //
+  // 3. The login page calls signInWithCustomToken(customToken). The resulting
+  //    Firebase user IS the Nivelato account: same users/{uid} doc, same
+  //    isQGC checks, same everything downstream. The webhook NEVER creates a
+  //    session by itself: no token, no signin.
+  //
+  // Failure semantics: the spec fetch times out after 8s, fails, or returns
+  // an invalid spec -> we fall back to the standard email/password form (a
+  // down webhook never hard-blocks signin). A failed submit shows the error
+  // inline; if baseAuth already signed the user in, we sign them back out so
+  // a failed extra step cannot leave a half-verified session behind.
+  var companySpecCache = {}; // companyId -> validated spec, or null when the fetch failed
+  var COMPANY_SPEC_TIMEOUT_MS = 8000;
+  var COMPANY_STEP_TYPES = { email: 'email', password: 'password', text: 'text', tel: 'tel' };
+
+  function fetchCompanySigninSpec(companyId) {
+    const company = COMPANIES[companyId];
+    if (!company || !company.signinWebhook) return Promise.resolve(null);
+    const lang = (window.nivGetLang && window.nivGetLang()) || 'es';
+    let timer = null;
+    let ctrl = null;
+    try { ctrl = new AbortController(); } catch (_) { ctrl = null; }
+    const fetchOpts = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company: companyId, lang: lang, mode: 'spec' })
+    };
+    if (ctrl) {
+      fetchOpts.signal = ctrl.signal;
+      timer = setTimeout(function () { try { ctrl.abort(); } catch (_) {} }, COMPANY_SPEC_TIMEOUT_MS);
+    }
+    const done = function () { if (timer) clearTimeout(timer); };
+    return fetch(company.signinWebhook, fetchOpts).then(function (r) {
+      done();
+      if (!r.ok) return null;
+      return r.json().catch(function () { return null; });
+    }).then(function (spec) {
+      return isValidCompanySpec(spec) ? spec : null;
+    }).catch(function () { done(); return null; });
+  }
+
+  function isValidCompanySpec(spec) {
+    if (!spec || typeof spec !== 'object' || Array.isArray(spec)) return false;
+    if (!Array.isArray(spec.steps)) return false;
+    if (!spec.submit || typeof spec.submit !== 'object' || typeof spec.submit.url !== 'string' || !spec.submit.url) return false;
+    const kept = [];
+    for (let i = 0; i < spec.steps.length; i++) {
+      const s = spec.steps[i];
+      if (!s || typeof s !== 'object' || typeof s.id !== 'string' || !s.id) continue;
+      if (!COMPANY_STEP_TYPES[s.type]) { try { console.warn('[nivelato] unknown company step type ignored:', s.type); } catch (_) {} continue; }
+      kept.push(s);
+    }
+    if (!kept.length) return false;
+    spec.steps = kept;
+    return true;
+  }
+
+  // Outside-PR detection for the company travel notice. Uses the same geo
+  // signal that drives QGC mode: PR timezone counts as inside PR; otherwise
+  // the resolved country (Cloudflare-injected or background lookup) decides.
+  // Returns true when resolved as outside PR, false when inside, null while
+  // geo is still unresolved (the notice stays hidden until then).
+  function outsidePRState() {
+    if (_tzIsPR) return false;
+    const cc = (country != null) ? country : _injectedCc;
+    if (cc == null) return null;
+    return cc !== 'PR';
+  }
+
+  // Shows/hides the outside-PR travel notice on the company signin screen
+  // without touching the form (safe to call when background geo settles).
+  function updateCompanyTravelNotice() {
+    const el = document.getElementById('company-travel-notice');
+    if (!el || !companyShown) return;
+    const company = COMPANIES[companyShown];
+    const show = !!company && company.travelNotice !== false && outsidePRState() === true;
+    el.style.display = show ? '' : 'none';
+  }
+
+  function renderCompanyUI() {
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    if (!card || !companyShown) return;
+    const company = COMPANIES[companyShown];
+    if (!company) return;
+    const qgi = QGI;
+    card.innerHTML = '<div class="company-single" data-envmark-card data-company-id="' + escapeHtml(companyShown) + '">'
+      + '<div class="company-head">'
+      + '<button type="button" class="back-btn" id="company-back" aria-label="' + t('go_back') + '">&#8249;</button>'
+      + '<div class="account-pill">'
+      + '<span class="account-avatar account-avatar-logo"><img src="' + escapeHtml(company.logo) + '" alt="' + escapeHtml(company.name) + '" /></span>'
+      + '<span class="account-meta"><span class="account-name">' + escapeHtml(company.name) + '</span></span>'
+      + '</div>'
+      + '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+      + '</div>'
+      + '<h1 class="logo company-title' + (qgi ? ' qgi' : '') + '">' + escapeHtml(company.name) + '</h1>'
+      + '<details class="company-details" id="company-details">'
+      + '<summary class="company-details-summary">' + t('company_details') + '</summary>'
+      + '<div class="company-details-body">'
+      + '<div class="tagline">' + escapeHtml(companyText(company, 'signinText')) + '</div>'
+      + '<div class="company-employee-notice">' + escapeHtml(company.employeeNoticeKey ? t(company.employeeNoticeKey) : (company.employeeNotice || '')) + '</div>'
+      + '<div class="company-inquiry">' + escapeHtml(companyText(company, 'inquiryText')) + '</div>'
+      + '<div class="company-travel-notice" id="company-travel-notice" style="display:none">' + t('outside_pr_notice') + '</div>'
+      + '</div>'
+      + '</details>'
+      + '<div id="company-form-area"></div>'
+      + '</div>';
+    window.nivApplyLang();
+    document.getElementById('company-back').addEventListener('click', goBackView);
+    // Desktop: company details expanded by default; mobile: collapsed.
+    try { if (window.innerWidth > 768) document.getElementById('company-details').open = true; } catch (_) {}
+    renderCompanyFormArea();
+    updateCompanyTravelNotice();
+  }
+
+  // Decides which form goes in the area: webhook spec (cached or fetched),
+  // falling back to the standard email/password form when there is no
+  // webhook or the spec fetch failed. Never throws; never blocks signin.
+  function renderCompanyFormArea() {
+    const area = document.getElementById('company-form-area');
+    const company = companyShown && COMPANIES[companyShown];
+    if (!area || !company) return;
+    const id = companyShown;
+    if (company.signinWebhook && companySpecCache[id] === undefined) {
+      area.innerHTML = '<div class="niv-spinner" role="status" aria-label="' + escapeHtml(window.nivT('loading_label')) + '"></div>';
+      fetchCompanySigninSpec(id).then(function (spec) {
+        companySpecCache[id] = spec; // null on failure -> standard form fallback
+        if (companyShown === id && document.getElementById('company-form-area')) renderCompanyFormArea();
+      });
+      return;
+    }
+    const spec = (company.signinWebhook && companySpecCache[id]) || null;
+    if (spec && spec.baseAuth === 'nivelato') {
+      // Extra steps on top of email/password: standard form first; a
+      // successful password signin flows into the webhook's extra steps.
+      renderStandardCompanyForm(area, company, spec);
+    } else if (spec) {
+      renderCustomCompanyForm(area, company, spec, null);
+    } else {
+      renderStandardCompanyForm(area, company, null);
+    }
+  }
+
+  // Standard email/password form. When pendingSpec is set (spec.baseAuth ===
+  // 'nivelato'), a successful password signin flows into the webhook's extra
+  // steps instead of finishing the signin.
+  function renderStandardCompanyForm(area, company, pendingSpec) {
+    const t = window.nivT;
+    const qgi = QGI;
+    const signinLabel = companyText(company, 'signinButton');
+    // novalidate: doCompanySubmit owns validation so a malformed email
+    // reaches the designed err_invalid_email message (m25) instead of
+    // being swallowed by native type=email validation before submit.
+    area.innerHTML = '<form id="company-form" autocomplete="on" novalidate onsubmit="return false">'
+      + '<div class="field">'
+      + '<label for="company-email">' + t('label_email') + '</label>'
+      + '<input type="email" id="company-email" name="email" placeholder="' + t('ph_email') + '" autocomplete="email" />'
+      + '</div>'
+      + '<div class="field">'
+      + '<label for="company-pass">' + t('label_password') + '</label>'
+      + '<input type="password" id="company-pass" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" />'
+      + '</div>'
+      + '<button class="btn-primary' + (qgi ? ' qgi-btn' : '') + '" id="btn-company" type="submit">' + escapeHtml(signinLabel) + '</button>'
+      + '<div class="error-msg" id="company-error" role="alert"></div>'
+      + '</form>';
+    document.getElementById('company-form').addEventListener('submit', function (e) { doCompanySubmit(e, pendingSpec); });
+    const emailEl = document.getElementById('company-email');
+    if (emailEl) emailEl.focus();
+  }
+
+  // Webhook-defined steps, rendered in order. All labels come from the spec
+  // (never localized here); every string is escaped, never raw innerHTML.
+  function renderCustomCompanyForm(area, company, spec, baseUser) {
+    const qgi = QGI;
+    const signinLabel = companyText(company, 'signinButton');
+    let html = '';
+    if (spec.notice) html += '<div class="company-inquiry">' + escapeHtml(String(spec.notice)) + '</div>';
+    html += '<form id="company-form" autocomplete="on" onsubmit="return false">';
+    spec.steps.forEach(function (s) {
+      const fid = 'cc-' + String(s.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+      const inputType = COMPANY_STEP_TYPES[s.type] || 'text';
+      html += '<div class="field">'
+        + '<label for="' + escapeHtml(fid) + '">' + escapeHtml(String(s.label || s.id)) + '</label>'
+        + '<input type="' + inputType + '" id="' + escapeHtml(fid) + '"'
+        + ' placeholder="' + escapeHtml(String(s.placeholder || '')) + '"'
+        + (s.required ? ' required aria-required="true"' : '')
+        + ' data-step-id="' + escapeHtml(String(s.id)) + '" />'
+        + '</div>';
+    });
+    html += '<button class="btn-primary' + (qgi ? ' qgi-btn' : '') + '" id="btn-company" type="submit">' + escapeHtml(signinLabel) + '</button>'
+      + '<div class="error-msg" id="company-error" role="alert"></div>'
+      + '</form>';
+    area.innerHTML = html;
+    document.getElementById('company-form').addEventListener('submit', function (e) { doCompanyCustomSubmit(e, spec, baseUser); });
+    const first = area.querySelector('input');
+    if (first) first.focus();
+  }
+
+  // Outside-PR company signin: the Nivelato account is established, then the
+  // user requests the travel link instead of going straight to the dashboard.
+  // The 30-day window in the notice is the travel grant duration: the emailed
+  // link redeems into a 30-day grant (see storeTravelGrant / qgcTravelValid).
+  async function routeCompanyTravelFlow(user) {
+    try {
+      const email = (user && user.email) || '';
+      const _dn = (user && user.displayName) || '';
+      saveUsedAccount(email, _dn, QGI ? 'qgc' : 'personal');
+    } catch (_) { /* ignore */ }
+    authBusy = false;
+    companyShown = null;
+    showTravelUI();
+  }
+
+  // True when a company signin should detour through the travel link flow:
+  // geo resolved outside PR, the company didn't opt out, and the device
+  // doesn't already hold a valid travel grant.
+  function companyNeedsTravel(company) {
+    return !!company && company.travelNotice !== false
+      && outsidePRState() === true && !qgcTravelValid();
+  }
+
+  // Company signin submit: email/password, then the shared QGC post-signin path
+  // (isQGC check, cant-add error for non-QGC in QGC mode, save-login prompt).
+  // With pendingSpec (baseAuth 'nivelato'), success flows into the webhook's
+  // extra steps instead of finishing here.
+  async function doCompanySubmit(e, pendingSpec) {
+    if (e) e.preventDefault();
+    if (authBusy) return;
+    authBusy = true;
+    const company = companyShown && COMPANIES[companyShown];
+    const btnLabel = company ? companyText(company, 'signinButton') : window.nivT('btn_login');
+    const btn = document.getElementById('btn-company');
+    const errEl = document.getElementById('company-error');
+    if (errEl) errEl.classList.remove('visible');
+    if (btn) { btn.disabled = true; }
+    try {
+      const email = (document.getElementById('company-email').value || '').trim();
+      const pass = (document.getElementById('company-pass').value || '') || '';
+      if (!email) { throw { code: 'auth/missing-email' }; }
+      if (email.indexOf('@') < 0) { throw { code: 'auth/invalid-email' }; }
+      if (!pass) { throw { code: 'auth/missing-password' }; }
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      if (pendingSpec) {
+        // baseAuth mode: Nivelato identity established; now the webhook's extra steps.
+        authBusy = false;
+        const area = document.getElementById('company-form-area');
+        if (area && company) renderCustomCompanyForm(area, company, pendingSpec, cred.user);
+        return;
+      }
+      if (companyNeedsTravel(company)) {
+        await routeCompanyTravelFlow(cred.user);
+        return;
+      }
+      companyShown = null;
+      await finishAddAccountSignIn(cred.user);
+    } catch (err) {
+      companyError(friendlyError(err && err.code));
+      if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      authBusy = false;
+    }
+  }
+
+  // Webhook custom-step submit: POST the collected fields; the webhook must
+  // answer with a Firebase custom token for the user's Nivelato account.
+  async function doCompanyCustomSubmit(e, spec, baseUser) {
+    if (e) e.preventDefault();
+    if (authBusy) return;
+    authBusy = true;
+    const t = window.nivT;
+    const companyId = companyShown;
+    const company = companyId && COMPANIES[companyId];
+    const btnLabel = company ? companyText(company, 'signinButton') : t('btn_login');
+    const btn = document.getElementById('btn-company');
+    const errEl = document.getElementById('company-error');
+    if (errEl) errEl.classList.remove('visible');
+    if (btn) { btn.disabled = true; }
+    const fail = async function (msg) {
+      // A failed extra step must not leave a half-verified session behind.
+      try { await signOut(auth); } catch (_) { /* ignore */ }
+      companyError(msg);
+      if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      authBusy = false;
+    };
+    try {
+      if (!company || !spec || !spec.submit || !spec.submit.url) throw new Error('bad-spec');
+      const fields = {};
+      for (let i = 0; i < spec.steps.length; i++) {
+        const s = spec.steps[i];
+        const el = document.querySelector('[data-step-id="' + String(s.id).replace(/"/g, '') + '"]');
+        const val = ((el && el.value) || '').trim();
+        if (s.required && !val) { await fail(t('field_required')); return; }
+        fields[s.id] = val;
+      }
+      const uid = (baseUser && baseUser.uid) || (auth.currentUser && auth.currentUser.uid) || null;
+      const lang = (window.nivGetLang && window.nivGetLang()) || 'es';
+      const r = await fetch(spec.submit.url, {
+        method: (spec.submit.method || 'POST').toUpperCase(),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company: companyId, lang: lang, uid: uid, fields: fields })
+      });
+      if (!r.ok) throw new Error('submit-failed');
+      const res = await r.json().catch(function () { return null; });
+      if (!res || res.ok !== true || typeof res.customToken !== 'string' || !res.customToken) {
+        await fail((res && res.error) ? String(res.error) : friendlyError('auth/webhook-verify-failed'));
+        return;
+      }
+      const cred = await signInWithCustomToken(auth, res.customToken);
+      if (companyNeedsTravel(company)) {
+        await routeCompanyTravelFlow(cred.user);
+        return;
+      }
+      companyShown = null;
+      await finishAddAccountSignIn(cred.user);
+    } catch (err) {
+      await fail(friendlyError(err && err.code));
+    }
+  }
+
+  function companyError(msg) {
+    const errEl = document.getElementById('company-error');
+    if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+  }
+
+  function showTravelUI() {
+    travelShown = true;
+    document.body.classList.add('qgc-theme');
+    const _tc = document.querySelector('meta[name="theme-color"]');
+    if (_tc) _tc.setAttribute('content', '#2a2a2e');
+    renderTravelUI();
+  }
+
+  function renderTravelUI() {
+    const t = window.nivT;
+    const card = document.getElementById('app-card');
+    if (!card) return;
+    const prevEmail = (document.getElementById('travel-email') || {}).value || '';
+    let prefill = prevEmail;
+    if (!prefill) { try { prefill = (auth.currentUser && auth.currentUser.email) || ''; } catch (_) {} }
+    const safePrefill = String(prefill).replace(/"/g, '&quot;');
+    let bodyHtml;
+    if (travelSent) {
+      bodyHtml = '<div style="text-align:center">'
+        + '<div style="font-size:40px;margin-bottom:12px">✉️</div>'
+        + '<div class="tagline" style="margin-bottom:8px">' + t('travel_sent_title') + '</div>'
+        + '<p class="travel-body">' + t('travel_sent_body') + '</p>'
+        + '</div>';
+    } else {
+      bodyHtml = '<p class="travel-body">' + t('travel_body') + '</p>'
+        + '<form id="travel-form" autocomplete="on" onsubmit="return false">'
+        + '<div class="field">'
+        + '<label for="travel-email">' + t('label_email') + '</label>'
+        + '<input type="email" id="travel-email" name="email" placeholder="' + t('ph_email') + '" autocomplete="email" value="' + safePrefill + '" />'
+        + '</div>'
+        + '<button class="btn-primary qgi-btn" id="btn-travel-send" type="submit">' + t('travel_send') + '</button>'
+        + '</form>'
+        + '<div class="error-msg" id="travel-error" role="alert"></div>';
+    }
+    card.innerHTML = '<button type="button" id="lang-toggle" class="lang-toggle"></button>'
+      + '<h1 class="logo qgi">Quality Glass</h1>'
+      + '<div class="tagline">' + t('travel_title') + '</div>'
+      + bodyHtml
+      + '<div style="text-align:center;margin-top:16px"><a href="#" id="travel-back" class="forgot-link">' + t('travel_back') + '</a></div>';
+    if (travelLinkError && !travelSent) {
+      const errEl = document.getElementById('travel-error');
+      if (errEl) { errEl.textContent = t('travel_err_link'); errEl.classList.add('visible'); }
+      travelLinkError = false;
+    }
+    window.nivApplyLang();
+    const form = document.getElementById('travel-form');
+    if (form) form.addEventListener('submit', doSendTravelLink);
+    document.getElementById('travel-back').addEventListener('click', function (e) {
+      e.preventDefault();
+      travelShown = false;
+      renderForm('external', true);
+      refreshNotices();
+    });
+  }
+
+  async function doSendTravelLink(e) {
+    if (e) e.preventDefault();
+    const t = window.nivT;
+    const btn = document.getElementById('btn-travel-send');
+    const errEl = document.getElementById('travel-error');
+    const email = ((document.getElementById('travel-email') || {}).value || '').trim();
+    if (errEl) errEl.classList.remove('visible');
+    if (!email || email.indexOf('@') < 0 || email.indexOf('.') < 0) {
+      if (errEl) { errEl.textContent = t('travel_err_email'); errEl.classList.add('visible'); }
+      return;
+    }
+    if (btn) { btn.disabled = true; btn.textContent = t('travel_sending'); }
+    try {
+      await sendTravelVerificationEmail(email);
+      travelSent = true;
+      renderTravelUI();
+    } catch (err) {
+      const code = err && err.code;
+      if (errEl) {
+        errEl.textContent = code === 'not-implemented' ? t('travel_err_notimpl') : t('travel_err_send');
+        errEl.classList.add('visible');
+      }
+      if (btn) { btn.disabled = false; btn.textContent = t('travel_send'); }
+    }
+  }
+
+  // ---- Init: hydrate the static form. NO network is awaited here. ----
+  // the page paints before it thinks. like all of us.
+  // Use synchronously-available signals (Cloudflare-injected country,
+  // device timezone) for the initial mode so PR users don't see a
+  // generic→QGC flash when the background geo resolves.
+  var _tzIsPR = false;
+  try {
+    var _tzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // GMT-4 covers PR (America/Puerto_Rico), Manaus, and other AST zones.
+    // getTimezoneOffset returns minutes west of GMT, so GMT-4 = 240.
+    _tzIsPR = (_tzName === 'America/Puerto_Rico') || (new Date().getTimezoneOffset() === 240);
+  } catch (_) {}
+  // DEV override (Regional flags): force a country for testing geo-gated UI.
+  // Set via the hidden dev options panel (Ctrl+Alt+D); stored in localStorage.
+  // the page thinks it's wherever benj says it is. the page is wrong. lovingly.
+  var _devGeo = null;
+  try { _devGeo = localStorage.getItem('nl_dev_geo') || null; } catch (_) { /* ignore */ }
+  if (_devGeo && !/^[A-Za-z]{2}$/.test(_devGeo)) _devGeo = null;
+  if (_devGeo) _devGeo = _devGeo.toUpperCase();
+  var _injectedCc = _devGeo || (typeof window.NIVELATO_COUNTRY === 'string' && window.NIVELATO_COUNTRY) || null;
+  var _initialCc = _injectedCc || (_tzIsPR ? 'PR' : null);
+  // Travel verification link (?travel_verify=<token>): redeemed below.
+  var _travelToken = null;
+  try { _travelToken = new URLSearchParams(location.search).get('travel_verify'); } catch (_) {}
+  // Company deep link (/company/XXXXXX): open that company's signin screen
+  // directly. The worker serves login.html for /company/* paths.
+  var _deepLinkCompany = null;
+  try {
+    var _m = location.pathname.match(/^\/company\/([A-Za-z0-9_-]+)\/?$/);
+    if (_m) _deepLinkCompany = _m[1].toLowerCase();
+  } catch (_) {}
+  // QGC device trust is checked FIRST, before any geo signal.
+  // - trusted + valid travel grant: straight to QGC mode, no geo at all.
+  // - trusted + sync signals say PR: QGC mode (background geo refines).
+  // - trusted + Cloudflare definitively says not-PR: travel verification UI.
+  // - trusted + geo unknown from sync signals: trust the device (QGC mode),
+  //   background geo refines (covers iCloud Private Relay / VPN).
+  // - not trusted: normal geo-gated flow.
+  var _trusted = qgcAuthed();
+  var _travelValid = qgcTravelValid();
+  var _syncPR = (_injectedCc === 'PR') || _tzIsPR;
+  var _syncNotPR = !!_injectedCc && _injectedCc !== 'PR';
+  var _initialMode;
+  if (_trusted && _travelValid) _initialMode = 'qgi';
+  else if (_trusted && _syncPR) _initialMode = 'qgi';
+  else if (_trusted && _syncNotPR) _initialMode = 'travel';
+  else if (_trusted) _initialMode = 'qgi';
+  else _initialMode = flowFromCookie() || flowModeForCountry(_initialCc);
+  // Company deep link takes precedence: open the company's signin screen
+  // directly, regardless of geo mode. The dev panel (UI section) can force a
+  // company the same way via localStorage (nl_dev_company).
+  var _devCompany = null;
+  try { _devCompany = localStorage.getItem('nl_dev_company') || null; } catch (_) { /* ignore */ }
+  var _forceCompany = (_devCompany && COMPANIES[_devCompany]) ? _devCompany
+    : (_deepLinkCompany && COMPANIES[_deepLinkCompany] ? _deepLinkCompany : null);
+  if (_forceCompany) {
+    showCompanyUI(_forceCompany);
+  } else if (_initialMode === 'travel') {
+    showTravelUI();
+    // Seed the history entry for the login view stack: the first back press
+    // from a sub-view returns to main instead of leaving the page.
+    try { history.replaceState({ nivelatoView: 'main' }, ''); } catch (_) { /* ignore */ }
+    currentView = 'main';
+  } else if (_initialMode === 'qgi') {
+    // QGC mode opens directly on the domain selector (it is the root view).
+    enterQgiDomainSelector();
+  } else {
+    renderForm(_initialMode, true);
+    // Seed the history entry for the login view stack: the first back press
+    // from a sub-view returns to main instead of leaving the page.
+    try { history.replaceState({ nivelatoView: 'main' }, ''); } catch (_) { /* ignore */ }
+    currentView = 'main';
+  }
+  if (_initialCc === 'PR') showPrNotice();
+  if (new URLSearchParams(location.search).get('missingProfile') === '1') showMissingProfileNotice();
+
+  // Redeem a travel verification link in the background. On success the
+  // device gets device trust + a 30-day travel grant and lands in QGC mode
+  // (the token is stripped from the URL). On failure, an invalid/expired
+  // notice is surfaced if the travel screen is showing.
+  if (_travelToken) {
+    redeemTravelVerification(_travelToken).then(function (res) {
+      if (res && res.validUntil) {
+        markQgcAuthed();
+        storeTravelGrant(res.validUntil);
+        travelShown = false;
+        travelSent = false;
+        try {
+          var _u = new URL(location.href);
+          _u.searchParams.delete('travel_verify');
+          history.replaceState({ nivelatoView: 'company-select' }, '', _u.toString());
+        } catch (_) {}
+        renderForm('qgi', true);
+        renderView('company-select');
+        currentView = 'company-select';
+        if (_initialCc === 'PR') showPrNotice();
+      }
+    }).catch(function () {
+      if (travelShown) { travelLinkError = true; renderTravelUI(); }
+    });
+  }
+
+  // (a) Already signed in? Send them to the app. Ignores the initial
+  // null-fire while the persisted session restores, and stays out of the
+  // way of in-flight login/signup submits and the pending-approval screen.
+  // ?signout=1 (from the app's sign-out): kill this page's session too and
+  // land on the saved-accounts picker instead of auto-handing back in.
+  var _signoutLanding = new URLSearchParams(location.search).get('signout') === '1';
+  if (_signoutLanding) {
+    try {
+      var _su = new URL(location.href);
+      _su.searchParams.delete('signout');
+      history.replaceState({ nivelatoView: 'main' }, '', _su.toString());
+    } catch (_) {}
+    try { signOut(auth).catch(function () {}); } catch (_) {}
+  }
+  onAuthStateChanged(auth, (user) => {
+    if (authInitDone || authBusy || pendingShown) return;
+    if (_signoutLanding) { _signoutLanding = false; authInitDone = true; renderView('main'); return; }
+    // Auto-login nuked: always show the form, never auto-redirect on existing session.
+    // Users who want in enter credentials; no silent session adoption.
+    authInitDone = true;
+    // Don't clobber the PR (company-select) initial view — only seed main
+    // state if we're actually on the main view.
+    if (typeof currentView === 'string' && currentView !== 'main') return;
+    renderView('main');
+    // Seed history state so back-from-company restores the form via popstate
+    // (without this, back lands on a stateless entry and the form never re-renders).
+    try { history.replaceState({ nivelatoView: 'main', qgi: QGI, qgcEscape: false }, ''); } catch (_) {}
+  });
+
+  // ---- Background geo (post-paint): swap the flow UI only if it differs.
+  // the page guessed where you are. now it checks for real. don't move.
+  // Hard 7s cap so a hung lookup can never stall the page; on failure the
+  // already-visible form stays, with a non-blocking notice. ----
+  // Country: prefer the Cloudflare-injected header (reliable, no API call);
+  // fall back to the IP lookup for direct GitHub Pages visits.
+  // (Timezone fallback already computed above as _tzIsPR.)
+  // Trusted devices with a valid travel grant skip geo entirely. Trusted
+  // devices without one still run geo: a definitive not-PR surfaces the
+  // travel verification UI, and a return to PR restores QGC mode (which
+  // supersedes any travel state).
+  if (!(_trusted && _travelValid)) {
+  var injectedCc = _injectedCc;
+  var tzIsPR = _tzIsPR;
+  var trustedDev = _trusted;
+  var countryPromise = injectedCc
+    ? Promise.resolve(injectedCc)
+    : Promise.race([
+        detectCountry(),
+        new Promise((resolve) => setTimeout(() => resolve(null), 7000)),
+      ]);
+  countryPromise.then((cc) => {
+    country = cc;
+    // The company signin screen stays up when geo settles; just flip its
+    // outside-PR travel notice without wiping the form.
+    if (companyShown) updateCompanyTravelNotice();
+    var effectivePR = (cc === 'PR') || tzIsPR;
+    if (trustedDev) {
+      // A travel grant acquired after boot (e.g. via link redeem) supersedes geo.
+      if (qgcTravelValid()) return;
+      // Transient add-account / cant-add / company / company-select views: never interrupt them.
+      if (addAccountShown || cantAddShown || companyShown || companySelectShown || reauthShown) return;
+      if (effectivePR) {
+        travelShown = false;
+        travelSent = false;
+        if (!QGI) enterQgiDomainSelector();
+        showPrNotice();
+      } else if (cc && cc !== 'PR') {
+        if (!travelShown && !pendingShown && !savePromptShown && !authBusy) showTravelUI();
+      }
+      // cc null: geo inconclusive, device trust stands as rendered.
+      return;
+    }
+    var effectiveCountry = effectivePR ? 'PR' : cc;
+    const mode = flowFromCookie() || flowModeForCountry(effectiveCountry);
+    // Don't yank the user out of the transient add-account / cant-add / company / company-select
+    // views when background geo settles.
+    if (addAccountShown || cantAddShown || companyShown || companySelectShown || reauthShown) return;
+    if (mode !== (QGI ? 'qgi' : 'external')) {
+      if (mode === 'qgi') enterQgiDomainSelector();
+      else renderForm(mode, true);
+    }
+    if (cc === null && !flowFromCookie() && !tzIsPR) showGeoNotice();
+    if (effectivePR) showPrNotice();
+  });
+  }
+</script>
+
+<p style="text-align:center;font-family:monospace;font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.38);margin:26px 12px 20px">PREVIEW DEMO · DESIGN DRAFT · NOT THE LIVE SITE</p>
+</body>
+</html>

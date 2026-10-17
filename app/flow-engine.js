@@ -1,0 +1,1548 @@
+﻿// adhd.js — Nivelato logic + canvas engine
+
+// Escape ALL user-controlled strings before innerHTML interpolation (stored XSS).
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ─── FRACTION HELPERS ──────────────────────────────────────────────────────
+function readVal(wholeId, fracId) {
+  // Allow override via _embedData for embedded graphs (dashboard)
+  if (window._embedData && window._embedData[wholeId] !== undefined) {
+    return window._embedData[wholeId];
+  }
+  const whole = parseFloat(document.getElementById(wholeId)?.value) || 0;
+  const frac  = parseFloat(document.getElementById(fracId)?.value)  || 0;
+  return whole + frac;
+}
+
+function parseLabelValue(str) {
+  if (!str || str === 'Nivel' || str === '-') return 0;
+  var m = str.match(/([\d\/\. ]+)"/);
+  if (!m) return 0;
+  var parts = m[1].trim().split(' ');
+  var val = 0;
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i].includes('/')) { var f = parts[i].split('/'); val += parseFloat(f[0])/parseFloat(f[1]); }
+    else val += parseFloat(parts[i]) || 0;
+  }
+  return val;
+}
+
+function setVal(wholeId, fracId, decimal) {
+  const whole = Math.floor(Math.abs(decimal));
+  const frac  = Math.abs(decimal) - whole;
+  const sixteenths = Math.round(frac * 16);
+  const fracVal = sixteenths / 16;
+  const wholeEl = document.getElementById(wholeId);
+  const fracEl = document.getElementById(fracId);
+  if (wholeEl) wholeEl.value = whole || '';
+  if (fracEl) {
+    const options = Array.from(fracEl.options);
+    let closest = options[0];
+    let minDiff = Infinity;
+    for (const opt of options) {
+      const v = parseFloat(opt.value);
+      const diff = Math.abs(v - fracVal);
+      if (diff < minDiff) { minDiff = diff; closest = opt; }
+    }
+    fracEl.value = closest.value;
+  }
+}
+
+function toFracStr(decimal) {
+  if (decimal === 0) return '0"';
+  const whole = Math.floor(Math.abs(decimal));
+  const frac  = Math.abs(decimal) - whole;
+  const sixteenths = Math.round(frac * 16);
+  const sign = decimal < 0 ? '-' : '';
+  if (sixteenths === 0)  return `${sign}${whole}"`;
+  if (sixteenths === 16) return `${sign}${whole + 1}"`;
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  const g = gcd(sixteenths, 16);
+  const n = sixteenths / g, d = 16 / g;
+  if (whole === 0) return `${sign}${n}/${d}"`;
+  return `${sign}${whole} ${n}/${d}"`;
+}
+
+// ─── STEP STATE ────────────────────────────────────────────────────────────
+let currentStep = 0;
+const TOTAL_STEPS = 7;
+
+function getLingerView(leavingStep) {
+  if (leavingStep === 2) {
+    const hasA = readVal('pI-a-whole','pI-a-frac') > 0;
+    const hasB = readVal('pI-b-whole','pI-b-frac') > 0;
+    if (hasA && hasB) return { focusX: 0.0, focusY: 0.5, zoom: 2.2 };
+    if (hasA)         return { focusX: 0.0, focusY: 1.0, zoom: 3.0 };
+    if (hasB)         return { focusX: 0.0, focusY: 0.0, zoom: 3.0 };
+  }
+  if (leavingStep === 3) {
+    const hasA = readVal('pD-a-whole','pD-a-frac') > 0;
+    const hasB = readVal('pD-b-whole','pD-b-frac') > 0;
+    if (hasA && hasB) return { focusX: 1.0, focusY: 0.5, zoom: 2.2 };
+    if (hasA)         return { focusX: 1.0, focusY: 1.0, zoom: 3.0 };
+    if (hasB)         return { focusX: 1.0, focusY: 0.0, zoom: 3.0 };
+  }
+  if (leavingStep === 4) {
+    const hasA = readVal('t-a-whole','t-a-frac') > 0;
+    const hasB = readVal('t-b-whole','t-b-frac') > 0;
+    if (hasA && hasB) return { focusX: 0.5, focusY: 0.0, zoom: 2.2 };
+    if (hasA)         return { focusX: 0.0, focusY: 0.0, zoom: 3.0 };
+    if (hasB)         return { focusX: 1.0, focusY: 0.0, zoom: 3.0 };
+  }
+  if (leavingStep === 5) {
+    const hasA = readVal('p-a-whole','p-a-frac') > 0;
+    const hasB = readVal('p-b-whole','p-b-frac') > 0;
+    if (hasA && hasB) return { focusX: 0.5, focusY: 1.0, zoom: 2.2 };
+    if (hasA)         return { focusX: 0.0, focusY: 1.0, zoom: 3.0 };
+    if (hasB)         return { focusX: 1.0, focusY: 1.0, zoom: 3.0 };
+  }
+  return null;
+}
+
+function goStep(n, skipHistory, skipSave) {
+  userZoomed = false; // reset auto-focus on each step transition
+  // (b) el botón "Restablecer" zoom solo tiene sentido con zoom manual activo
+  const _rzb = document.getElementById('reset-zoom-btn');
+  if (_rzb) _rzb.style.display = 'none';
+  const leavingStep = currentStep;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + n)?.classList.add('active');
+  currentStep = n;
+  document.getElementById('step-num').textContent = n + 1;
+  const pct = Math.max(0, Math.min(100, ((n + 1) / (TOTAL_STEPS + 1)) * 100));
+  document.getElementById('progress-bar').style.width = pct + '%';
+  recalcAll();
+  if (n === TOTAL_STEPS) renderSummary();
+
+  if (!skipHistory) {
+    history.pushState({ step: n }, '', '#step-' + n);
+  }
+
+  /* resize canvas after step transition so flex layout can redistribute space */
+  setTimeout(resizeCanvas, 0);
+
+  const linger = getLingerView(leavingStep);
+  if (linger && n !== TOTAL_STEPS && !userZoomed) {
+    const W  = canvas.width  / window.devicePixelRatio;
+    const H  = canvas.height / window.devicePixelRatio;
+    const gr = getGlassRect();
+    const wx = gr.x + linger.focusX * gr.w;
+    const wy = gr.y + linger.focusY * gr.h;
+    vpTarget.scale = linger.zoom;
+    vpTarget.x = W / 2 - wx * linger.zoom;
+    vpTarget.y = H / 2 - wy * linger.zoom;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    smoothAnimate();
+    setTimeout(() => animateCanvas(n), 800);
+  } else {
+    if (!userZoomed) animateCanvas(n);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // (a) persistir el paso actual en el borrador: un refresh ya no te tira un paso atrás
+  if (!skipSave) saveDraft();
+}
+
+function nextStep() {
+  if (currentStep < TOTAL_STEPS) {
+    const err = validateStep(currentStep);
+    if (err) { showStepError(currentStep, err); return; }
+    hideStepError(currentStep);
+    goStep(currentStep + 1);
+  }
+}
+function prevStep() { if (currentStep > 0) { hideStepError(currentStep); goStep(currentStep - 1); } }
+
+// ─── STEP VALIDATION — blocks advancing (QA fix 2026-09-18) ────────────────
+const MAX_MEASURE_IN = 20000;
+
+function _checkMeasure(prefix, label) {
+  const v = readVal(prefix + '-whole', prefix + '-frac');
+  if (!(v > 0)) return '⚠️ ' + label + ': escribe una medida mayor que 0 para poder seguir.';
+  if (v > MAX_MEASURE_IN) return '⚠️ ' + label + ': ese número está bien loco 😅 - revisa que sean pulgadas (máx 20,000").';
+  return null;
+}
+
+function _checkPair(prefixA, prefixB, labelA, labelB) {
+  return _checkMeasure(prefixA, labelA) || _checkMeasure(prefixB, labelB);
+}
+
+function validateStep(n) {
+  if (n === 0) {
+    const c = (document.getElementById('customer-name')?.value || '').trim();
+    const p = (document.getElementById('project-name')?.value || '').trim();
+    if (!c) return '⚠️ Falta el nombre del cliente - escríbelo para poder guardar la medida. 🙏';
+    if (!p) return '⚠️ Ponle nombre al proyecto para identificar el trabajo.';
+    return null;
+  }
+  if (n === 1) return _checkPair('hueco-ancho-bot', 'hueco-alto-izq', 'Ancho abajo', 'Alto izquierda');
+  if (n === 2) return _checkPair('pI-a', 'pI-b', 'Pared izq. A', 'Pared izq. B');
+  if (n === 3) return _checkPair('pD-a', 'pD-b', 'Pared der. A', 'Pared der. B');
+  if (n === 4) return _checkPair('t-a', 't-b', 'Arriba A', 'Arriba B');
+  if (n === 5) return _checkPair('p-a', 'p-b', 'Abajo A', 'Abajo B');
+  return null; // paso 6 (foto opcional) y 7 (resumen) siempre pasan
+}
+
+function _stepErrorEl(n) {
+  const panel = document.getElementById('step-' + n);
+  return panel ? panel.querySelector('.step-error') : null;
+}
+
+function showStepError(n, msg) {
+  const el = _stepErrorEl(n);
+  if (el) { el.textContent = msg; el.classList.add('show'); }
+}
+
+function hideStepError(n) {
+  const el = _stepErrorEl(n);
+  if (el) { el.classList.remove('show'); el.textContent = ''; }
+}
+
+// ─── DRAFT PERSISTENCE — localStorage (QA fix 2026-09-18) ──────────────────
+const DRAFT_KEY = 'nivelato_wizard_draft_v1';
+// (e) la foto anotada vive aquí desde el arranque para que saveDraft/restoreDraft
+// puedan leerla sin caer en la TDZ durante el init
+let annotatedPhotoDataUrl = null;
+const DRAFT_IDS = ['customer-name','project-name','location-name','area-name','notas-field',
+  'hueco-ancho-bot-whole','hueco-ancho-bot-frac','hueco-alto-izq-whole','hueco-alto-izq-frac',
+  'pI-a-whole','pI-a-frac','pI-b-whole','pI-b-frac',
+  'pD-a-whole','pD-a-frac','pD-b-whole','pD-b-frac',
+  't-a-whole','t-a-frac','t-b-whole','t-b-frac',
+  'p-a-whole','p-a-frac','p-b-whole','p-b-frac'];
+
+function saveDraft() {
+  try {
+    const values = {};
+    for (const id of DRAFT_IDS) {
+      const el = document.getElementById(id);
+      if (el) values[id] = el.value;
+    }
+    // (e) la foto anotada también es parte del borrador
+    const draft = { v: 1, ts: Date.now(), step: currentStep, values };
+    if (annotatedPhotoDataUrl) draft.photo = annotatedPhotoDataUrl;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch (e2) {
+      // la foto no cabe en localStorage: guardar el borrador sin ella
+      delete draft.photo;
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+  } catch (e) { /* storage lleno o bloqueado: el wizard sigue funcionando */ }
+}
+
+function restoreDraft() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch (e) { return false; }
+  if (!d || !d.values) return false;
+  if (Date.now() - (d.ts || 0) > 7 * 24 * 3600 * 1000) { clearDraft(); return false; } // borrador viejo
+  for (const id of Object.keys(d.values)) {
+    const el = document.getElementById(id);
+    if (el) el.value = d.values[id];
+  }
+  // (e) restaurar la foto anotada guardada en el borrador
+  if (d.photo) {
+    annotatedPhotoDataUrl = d.photo;
+    const pimg = document.getElementById('photo-preview-img');
+    const pprev = document.getElementById('photo-preview');
+    const pbtn = document.getElementById('btn-open-photo');
+    if (pprev && pimg) {
+      pimg.src = d.photo;
+      pprev.style.display = 'block';
+      if (pbtn) pbtn.textContent = '📷 Cambiar foto';
+    }
+  }
+  const step = Math.max(0, Math.min(TOTAL_STEPS, d.step | 0));
+  if (step !== currentStep) goStep(step, true);
+  else { recalcAll(); if (step === TOTAL_STEPS) renderSummary(); }
+  showToast('📝 Borrador restaurado');
+  return true;
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+}
+
+window.addEventListener('popstate', function(e) {
+  if (e.state && typeof e.state.step === 'number') {
+    const targetStep = e.state.step;
+    if (targetStep >= 0 && targetStep <= TOTAL_STEPS && targetStep !== currentStep) {
+      // M15: navegar hacia ADELANTE con Back/Forward del navegador valida
+      // igual que el botón Siguiente — no se puede saltar la validación.
+      if (targetStep > currentStep) {
+        const err = validateStep(currentStep);
+        if (err) {
+          showStepError(currentStep, err);
+          history.back(); // quedarse en el paso actual hasta que los campos sean válidos
+          return;
+        }
+        hideStepError(currentStep);
+      } else {
+        hideStepError(currentStep);
+      }
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('step-' + targetStep)?.classList.add('active');
+      currentStep = targetStep;
+      document.getElementById('step-num').textContent = targetStep + 1;
+      const pct = Math.max(0, Math.min(100, ((targetStep + 1) / (TOTAL_STEPS + 1)) * 100));
+      document.getElementById('progress-bar').style.width = pct + '%';
+      recalcAll();
+      if (targetStep === TOTAL_STEPS) renderSummary();
+      if (!userZoomed) animateCanvas(targetStep);
+      saveDraft(); // (a) persistir el paso tras navegar con Back/Forward
+    }
+  }
+});
+
+// ─── CALCULATIONS ──────────────────────────────────────────────────────────
+let results = {};
+
+function calcDesnivel_wall(a, b) {
+  const diff = a - b;
+  if (Math.abs(diff) < 0.001) return { val: 0, dir: 'NIVEL', label: 'Nivel', raw: 0 };
+  const val = Math.abs(diff);
+  const arrow = diff > 0 ? '→' : '←';
+  return { val: val, dir: arrow, label: arrow + ' ' + toFracStr(val), raw: diff };
+}
+
+function calcDesnivel_horiz(a, b) {
+  const diff = a - b;
+  if (Math.abs(diff) < 0.001) return { val: 0, dir: 'NIVEL', label: 'Nivel', raw: 0 };
+  const val = Math.abs(diff);
+  // offset on LEFT reference: if right is higher the ceiling drops on left = ↓
+  const dir = diff > 0 ? "↓" : "↑";
+  return { val: val, dir: dir, label: dir + ' ' + toFracStr(val), raw: diff };
+}
+
+function recalcAll() {
+  const pI_A = readVal('pI-a-whole', 'pI-a-frac');
+  const pI_B = readVal('pI-b-whole', 'pI-b-frac');
+  const pD_A = readVal('pD-a-whole', 'pD-a-frac');
+  const pD_B = readVal('pD-b-whole', 'pD-b-frac');
+  const t_A  = readVal('t-a-whole',  't-a-frac');
+  const t_B  = readVal('t-b-whole',  't-b-frac');
+  const p_A  = readVal('p-a-whole',  'p-a-frac');
+  const p_B  = readVal('p-b-whole',  'p-b-frac');
+
+  results.paredIzq = calcDesnivel_wall(pI_A, pI_B);
+  results.paredDer = calcDesnivel_wall(pD_A, pD_B);
+  // Fix right wall arrow direction: lean-in on right wall means ← not →
+  if (results.paredDer.raw > 0) {
+    results.paredDer.dir = '←';
+    results.paredDer.label = '← ' + toFracStr(results.paredDer.val);
+  } else if (results.paredDer.raw < 0) {
+    results.paredDer.dir = '→';
+    results.paredDer.label = '→ ' + toFracStr(results.paredDer.val);
+  }
+  results.techo = calcDesnivel_horiz(t_A, t_B);
+  results.piso  = calcDesnivel_horiz(p_A, p_B);
+  // Floor direction is opposite of ceiling: bigger left = floor rises right (↑)
+  if (results.piso.raw > 0) {
+    results.piso.dir = '\u2191';
+    results.piso.label = '\u2191 ' + toFracStr(results.piso.val);
+  } else if (results.piso.raw < 0) {
+    results.piso.dir = '\u2193';
+    results.piso.label = '\u2193 ' + toFracStr(results.piso.val);
+  }
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac') || 0;
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac')  || 0;
+
+  // Computed dimensions from desniveles
+  // Top width = bottom width - left wall lean - right wall lean
+  // Right height = left height - ceiling tilt - floor tilt
+  // (d) un desnivel mayor que la base no puede dar un ancho/alto negativo — clamp a 0
+  results.anchoTop = anchoBot > 0 ? Math.max(0, anchoBot - results.paredIzq.raw - results.paredDer.raw) : 0;
+  results.altoDer  = altoIzq > 0  ? Math.max(0, altoIzq - results.techo.raw - results.piso.raw) : 0;
+
+  drawCanvas();
+}
+
+// ─── VALIDATION ────────────────────────────────────────────────────────────
+const TOLERANCE = 0.0625;
+
+function runValidation() {
+  const warnings = [];
+  const pI_A = readVal('pI-a-whole','pI-a-frac'), pI_B = readVal('pI-b-whole','pI-b-frac');
+  const pD_A = readVal('pD-a-whole','pD-a-frac'), pD_B = readVal('pD-b-whole','pD-b-frac');
+  const t_A  = readVal('t-a-whole', 't-a-frac'),  t_B  = readVal('t-b-whole', 't-b-frac');
+  const p_A  = readVal('p-a-whole', 'p-a-frac'),  p_B  = readVal('p-b-whole', 'p-b-frac');
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac');
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac');
+  const anyEntered = pI_A||pI_B||pD_A||pD_B||t_A||t_B||p_A||p_B;
+  if (!anyEntered) return [];
+
+  if ((pI_A > 0||pI_B > 0) && (pD_A > 0||pD_B > 0)) {
+    const offsetIzq = pI_A - pI_B;
+    const offsetDer = pD_A - pD_B;
+    if (Math.abs(offsetIzq - offsetDer) > TOLERANCE)
+      warnings.push('⚠ Paredes no cuadran - el desnivel izq. (' + toFracStr(Math.abs(offsetIzq)) + ') no coincide con el der. (' + toFracStr(Math.abs(offsetDer)) + '). Revisa las medidas.');
+  }
+  if ((t_A > 0||t_B > 0) && (p_A > 0||p_B > 0)) {
+    const offsetTecho = t_A - t_B;
+    const offsetPiso  = p_A - p_B;
+    if (Math.abs(offsetTecho - offsetPiso) > TOLERANCE)
+      warnings.push('⚠ Arriba/Abajo no cuadran - el desnivel de arriba (' + toFracStr(Math.abs(offsetTecho)) + ') no coincide con el de abajo (' + toFracStr(Math.abs(offsetPiso)) + '). Revisa las medidas.');
+  }
+  if ((pI_A||pI_B||pD_A||pD_B||p_A||p_B) && t_A === 0 && t_B === 0)
+    warnings.push('⚠ Faltan niveles de arriba - mide del láser arriba en punto A (izq) y punto B (der)');
+  if (anyEntered && (anchoBot === 0 || altoIzq === 0))
+    warnings.push('⚠ Falta medida base del hueco - ingresa Ancho Abajo y Alto Izquierda');
+  return warnings;
+}
+
+// ─── AUTO-FIX ACTIONS ──────────────────────────────────────────────────────
+// "Revisar" NUNCA reescribe medidas - solo lleva al trabajador al paso
+// correspondiente para que mida de nuevo. (QA 2026-09-18: el autoFix
+// anterior inventaba datos copiando una pared sobre la otra.)
+function autoFix(warningText) {
+  if (warningText.includes('Paredes no cuadran')) { goStep(2); return; }
+  if (warningText.includes('Arriba/Abajo no cuadran')) { goStep(4); return; }
+  if (warningText.includes('Faltan niveles de arriba')) {
+    goStep(4);
+    return;
+  }
+  if (warningText.includes('Falta medida base')) {
+    goStep(1);
+    return;
+  }
+}
+
+let _lastWarnings = [];
+
+function renderValidation() {
+  const el = document.getElementById('validation-block');
+  if (!el) return;
+  const warnings = runValidation();
+  _lastWarnings = warnings;
+  if (warnings.length === 0) {
+    el.textContent = '✓ Medidas OK';
+    el.className = 'val-ok';
+  } else {
+    el.innerHTML = warnings.map(function(w, i) {
+      return '<div style="margin-bottom:6px">' + escapeHtml(w) + ' <button data-widx="' + i + '" class="arreglar-btn" style="margin-left:8px;padding:2px 10px;border-radius:12px;border:none;background:#e07b00;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Revisar →</button></div>';
+    }).join('');
+    el.className = 'val-warn';
+    el.querySelectorAll('.arreglar-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { autoFix(_lastWarnings[+btn.dataset.widx] || ''); });
+    });
+  }
+}
+
+// ─── SUMMARY ───────────────────────────────────────────────────────────────
+function _fmtPared(a, b, d) {
+  const has = (a > 0 || b > 0);
+  const lbl = (d && d.label) ? d.label : '-';
+  if (!has) return '-';
+  return toFracStr(a) + ' / ' + toFracStr(b) + ' → ' + lbl;
+}
+
+function renderSummary() {
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac');
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac');
+  const set = function(id, val) { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('res-area', (anchoBot > 0 ? toFracStr(anchoBot) : '-') + ' × ' + (altoIzq > 0 ? toFracStr(altoIzq) : '-') + ' (base)');
+  set('res-pared-izq', _fmtPared(readVal('pI-a-whole','pI-a-frac'), readVal('pI-b-whole','pI-b-frac'), results.paredIzq));
+  set('res-pared-der', _fmtPared(readVal('pD-a-whole','pD-a-frac'), readVal('pD-b-whole','pD-b-frac'), results.paredDer));
+  set('res-techo',     _fmtPared(readVal('t-a-whole','t-a-frac'),  readVal('t-b-whole','t-b-frac'),  results.techo));
+  set('res-piso',      _fmtPared(readVal('p-a-whole','p-a-frac'),  readVal('p-b-whole','p-b-frac'),  results.piso));
+  renderValidation();
+}
+
+// ─── SHARE ─────────────────────────────────────────────────────────────────
+let _saveState = 'idle'; // idle | saving | saved
+
+function _setSaveBtn(disabled, label) {
+  const btn = document.getElementById('btn-guardar');
+  if (btn) { btn.disabled = disabled; btn.textContent = label; }
+}
+
+// Si el usuario edita algo después de guardar, el botón vuelve a activarse.
+function _dirtyResetSaveButton() {
+  if (_saveState === 'saved') { _saveState = 'idle'; _setSaveBtn(false, '💾 Guardar medida'); _hidePostSaveActions(); }
+}
+
+// ─── POST-SAVE ACTIONS (QA 2026-09-18: antes el flujo moría en "✓ Guardado") ─
+function _showPostSaveActions() {
+  const box = document.getElementById('post-save-actions');
+  if (!box) return;
+  box.style.display = 'block';
+  const dashBtn = document.getElementById('btn-ver-dashboard');
+  if (dashBtn) {
+    // respeta el permiso viewDashboard, igual que el link del header (auth-guard.js)
+    const canView = (typeof window._can === 'function') && window._can('viewDashboard');
+    dashBtn.style.display = canView ? '' : 'none';
+  }
+  setTimeout(function() { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 2300);
+}
+
+function _hidePostSaveActions() {
+  const box = document.getElementById('post-save-actions');
+  if (box) box.style.display = 'none';
+}
+
+window.goToDashboard = function() { window.location.href = 'dashboard.html'; };
+
+window.newMeasurement = function() {
+  // Limpia el formulario y vuelve al paso 0 para empezar una medida nueva
+  for (const id of DRAFT_IDS) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.value = (el.tagName === 'SELECT') ? '0' : '';
+  }
+  clearDraft();
+  annotatedPhotoDataUrl = null;
+  const prev = document.getElementById('photo-preview');
+  if (prev) prev.style.display = 'none';
+  const btnOpen = document.getElementById('btn-open-photo');
+  if (btnOpen) btnOpen.textContent = '📷 Agregar foto';
+  _saveState = 'idle';
+  _setSaveBtn(false, '💾 Guardar medida');
+  _hidePostSaveActions();
+  goStep(0, true);
+  // (c) la entrada vieja del paso 7 seguiría en el historial y el Back del
+  // navegador la resucitaría: reemplazarla por el paso 0 para que no haya
+  // resumen fantasma después de empezar una medida nueva
+  history.replaceState({ step: 0 }, '', '#step-0');
+  clearDraft(); // el goStep de arriba guardó un borrador vacío: no dejar rastro
+};
+
+// ─── TOAST - avisos livianos, ej. "Borrador restaurado" ─────────────────────
+let _toastTimer = null;
+function showToast(msg) {
+  let t = document.getElementById('nv-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'nv-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+// ─── INLINE WARNING MODAL — reemplaza el confirm() nativo (QA 2026-09-18) ──
+function _closeWarnModal() {
+  const el = document.getElementById('nv-modal-overlay');
+  if (el) el.remove();
+}
+
+function _showWarnModal(warnings, onContinue) {
+  _closeWarnModal();
+  const overlay = document.createElement('div');
+  overlay.id = 'nv-modal-overlay';
+  overlay.innerHTML =
+    '<div id="nv-modal" role="alertdialog" aria-modal="true" aria-labelledby="nv-modal-title">' +
+      '<div id="nv-modal-title">⚠️ Revisa las medidas</div>' +
+      '<div id="nv-modal-body"></div>' +
+      '<div id="nv-modal-actions">' +
+        '<button class="btn-secondary" id="nv-modal-cancel">← Volver a revisar</button>' +
+        '<button class="btn-primary" id="nv-modal-ok">Guardar de todas formas</button>' +
+      '</div>' +
+    '</div>';
+  overlay.querySelector('#nv-modal-body').textContent = warnings.join('\n');
+  document.body.appendChild(overlay);
+  overlay.querySelector('#nv-modal-cancel').addEventListener('click', _closeWarnModal);
+  overlay.querySelector('#nv-modal-ok').addEventListener('click', function() { _closeWarnModal(); onContinue(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) _closeWarnModal(); });
+}
+
+function saveJob() {
+  if (_saveState === 'saving') return; // ya se está guardando: no doble-submit
+  const warnings = runValidation();
+  if (warnings.length > 0) {
+    _showWarnModal(warnings, function() { _doSaveJob(warnings); });
+    return;
+  }
+  _doSaveJob(warnings);
+}
+
+function _doSaveJob(warnings) {
+  _saveState = 'saving';
+  _setSaveBtn(true, '⏳ Guardando…');
+  _saveCurrentJob(warnings);
+}
+
+function _saveCurrentJob(warnings) {
+  if (typeof window.saveJobToFirestore !== 'function') {
+    console.error('[Nivelato] saveJobToFirestore no está disponible - ¿se cargó auth-guard.js?');
+    _saveState = 'idle';
+    _setSaveBtn(false, '💾 Guardar medida');
+    return;
+  }
+  recalcAll(); // leer valores frescos del DOM — nunca guardar results viejos
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac');
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac');
+  const anchoTop = results.anchoTop || 0;
+  const altoDer  = results.altoDer  || 0;
+  const pI_A = readVal('pI-a-whole','pI-a-frac'), pI_B = readVal('pI-b-whole','pI-b-frac');
+  const pD_A = readVal('pD-a-whole','pD-a-frac'), pD_B = readVal('pD-b-whole','pD-b-frac');
+  const t_A  = readVal('t-a-whole','t-a-frac'),   t_B  = readVal('t-b-whole','t-b-frac');
+  const p_A  = readVal('p-a-whole','p-a-frac'),   p_B  = readVal('p-b-whole','p-b-frac');
+  const notas = document.getElementById('notas-field')?.value || '';
+  const customer = document.getElementById('customer-name')?.value || '';
+  const project = document.getElementById('project-name')?.value || '';
+  const location = document.getElementById('location-name')?.value || '';
+  const area = document.getElementById('area-name')?.value || '';
+  const jobData = {
+    hueco: { anchoBot: anchoBot, altoIzq: altoIzq, anchoTop: anchoTop, altoDer: altoDer },
+    desniveles: {
+      paredIzq: results.paredIzq?.label || null,
+      paredDer: results.paredDer?.label || null,
+      techo:    results.techo?.label    || null,
+      piso:     results.piso?.label     || null,
+    },
+    // medidas crudas por pared + desnivel numérico en pulgadas (QA 2026-09-18)
+    paredes: {
+      izq:   { a: pI_A, b: pI_B, desnivel: results.paredIzq?.raw ?? null },
+      der:   { a: pD_A, b: pD_B, desnivel: results.paredDer?.raw ?? null },
+      techo: { a: t_A,  b: t_B,  desnivel: results.techo?.raw    ?? null },
+      piso:  { a: p_A,  b: p_B,  desnivel: results.piso?.raw     ?? null },
+    },
+    customer: customer,
+    project: project,
+    location: location,
+    area: area,
+    warnings: warnings || [],
+    notas: notas,
+    annotatedPhoto: annotatedPhotoDataUrl || null
+  };
+  // Timeout: un addDoc colgado no puede dejar el "⏳ Guardando…" eterno (QA 2026-09-18)
+  const _saveWithTimeout = Promise.race([
+    window.saveJobToFirestore(jobData),
+    new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error('Se acabó el tiempo esperando la nube - revisa tu conexión e inténtalo de nuevo.')); }, 45000);
+    })
+  ]);
+  _saveWithTimeout.then(function() {
+    _saveState = 'saved';
+    _setSaveBtn(true, '✓ Guardado');
+    clearDraft();
+    _showPostSaveActions();
+    const el = document.getElementById('save-status');
+    if (el) { el.style.display = 'block'; setTimeout(function() { el.style.display = 'none'; }, 4000); }
+    const overlay = document.createElement('div');
+    overlay.innerHTML='☁️ Guardado en la nube';overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(25,135,84,0.92);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;animation:fadeInOut 2.2s ease forwards;'
+    overlay.style.cssText = 'position:fixed; inset:0; z-index:9999; background:rgba(25,135,84,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; letter-spacing:0.02em; animation: fadeInOut 2.2s ease forwards;';
+    if (!document.getElementById('nube-anim-style')) {
+      const style = document.createElement('style');
+      style.id = 'nube-anim-style';
+      style.textContent = '@keyframes fadeInOut { 0%{opacity:0;transform:scale(0.95)} 15%{opacity:1;transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(1.03)} }';
+      document.head.appendChild(style);
+    }
+    document.body.appendChild(overlay);
+    setTimeout(function() { overlay.remove(); }, 2200);
+  }).catch(function(e) {
+    console.error('[Nivelato] save failed:', e);
+    _saveState = 'idle';
+    _setSaveBtn(false, '💾 Guardar medida');
+    let reason = (e && e.message) ? e.message : String(e);
+    if (/permission-denied|Missing or insufficient permissions/i.test(reason)) {
+      reason = 'No tienes permiso para guardar. Cierra sesion y entra de nuevo; si persiste, avisa al administrador.';
+    }
+    const overlay = document.createElement('div');
+    overlay.id = 'nv-save-error';
+    overlay.style.cssText = 'position:fixed; inset:0; z-index:9999; background:rgba(220,53,69,0.94); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;';
+    overlay.innerHTML =
+      '<div style="font-size:28px;font-weight:700;margin-bottom:10px">⚠️ Error al guardar</div>' +
+      '<div id="nv-save-error-reason" style="font-size:14px;font-weight:500;opacity:.92;max-width:80vw;margin-bottom:20px;line-height:1.5"></div>' +
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">' +
+        '<button class="btn-secondary" id="nv-save-error-close">Cerrar</button>' +
+        '<button class="btn-primary" id="nv-save-error-retry">🔄 Reintentar</button>' +
+      '</div>';
+    overlay.querySelector('#nv-save-error-reason').textContent = reason;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#nv-save-error-close').addEventListener('click', function() { overlay.remove(); });
+    overlay.querySelector('#nv-save-error-retry').addEventListener('click', function() { overlay.remove(); saveJob(); });
+  });
+}
+
+// ─── CANVAS ENGINE ─────────────────────────────────────────────────────────
+let canvas  = document.getElementById('drawing-canvas');
+let ctx     = canvas?.getContext('2d');
+
+let vp = { x: 0, y: 0, scale: 1 };
+let vpTarget = { x: 0, y: 0, scale: 1 };
+let animFrame = null;
+
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  if (!wrap || !canvas) return;
+  canvas.width  = wrap.offsetWidth  * window.devicePixelRatio;
+  canvas.height = wrap.offsetHeight * window.devicePixelRatio;
+  canvas.style.width  = wrap.offsetWidth  + 'px';
+  canvas.style.height = wrap.offsetHeight + 'px';
+  drawCanvas();
+}
+
+const STEP_VIEWS = [
+  { focusX: 0.5, focusY: 0.5, zoom: 1.0 }, // step 0 - cliente
+  { focusX: 0.5, focusY: 0.5, zoom: 1.0 }, // step 1 - hueco
+  { focusX: 0.0, focusY: 0.5, zoom: 3.2  }, // step 2 - pared izq
+  { focusX: 1.0, focusY: 0.5, zoom: 3.2  }, // step 3 - pared der
+  { focusX: 0.5, focusY: 0.0, zoom: 3.2  }, // step 4 - arriba
+  { focusX: 0.5, focusY: 1.0, zoom: 3.2  }, // step 5 - abajo
+  { focusX: 0.5, focusY: 0.5, zoom: 0.72 }, // step 6 - resumen
+];
+
+function getGlassRect() {
+  if (!canvas) return { x: 0, y: 0, w: 100, h: 100 };
+  const W = canvas.width  / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+  const ancho = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac') || 48;
+  const alto  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac')  || 36;
+  const aspect = ancho / alto;
+  const padding = 60;
+  let gW = W - padding * 2;
+  let gH = gW / aspect;
+  if (gH > H - padding * 2) { gH = H - padding * 2; gW = gH * aspect; }
+  const gX = (W - gW) / 2;
+  const gY = (H - gH) / 2;
+  return { x: gX, y: gY, w: gW, h: gH };
+}
+
+function animateCanvas(step) {
+  if (!canvas) return;
+  const sv  = STEP_VIEWS[step] || STEP_VIEWS[0];
+  const W   = canvas.width  / window.devicePixelRatio;
+  const H   = canvas.height / window.devicePixelRatio;
+  const gr  = getGlassRect();
+
+  let zoom = sv.zoom;
+
+  if (step === TOTAL_STEPS) {
+    // Fit padding must clear the desnivel labels, which are drawn OUTSIDE
+    // the glass rect: anchored 14px out + up to ~55px of label text
+    // (e.g. left/right labels with textAlign pushing outward). 48px clipped
+    // them at the canvas edge (bug 2026-10-09).
+    const padFit = 80;
+    const fitZoomX = (W - padFit * 2) / gr.w;
+    const fitZoomY = (H - padFit * 2) / gr.h;
+    zoom = Math.min(fitZoomX, fitZoomY, 1.0);
+  }
+
+  const wx = gr.x + sv.focusX * gr.w;
+  const wy = gr.y + sv.focusY * gr.h;
+
+  vpTarget.scale = zoom;
+  vpTarget.x = W / 2 - wx * zoom;
+  vpTarget.y = H / 2 - wy * zoom;
+
+  if (animFrame) cancelAnimationFrame(animFrame);
+  smoothAnimate();
+}
+
+function smoothAnimate() {
+  const ease = 0.1;
+  vp.x     += (vpTarget.x     - vp.x)     * ease;
+  vp.y     += (vpTarget.y     - vp.y)     * ease;
+  vp.scale += (vpTarget.scale - vp.scale) * ease;
+
+  drawCanvas();
+
+  const dx = Math.abs(vp.x - vpTarget.x);
+  const dy = Math.abs(vp.y - vpTarget.y);
+  const ds = Math.abs(vp.scale - vpTarget.scale);
+  if (dx > 0.1 || dy > 0.1 || ds > 0.001) {
+    animFrame = requestAnimationFrame(smoothAnimate);
+  } else {
+    vp.x = vpTarget.x; vp.y = vpTarget.y; vp.scale = vpTarget.scale;
+    drawCanvas();
+  }
+}
+
+function drawCanvas() {
+  if (!canvas || !ctx) return;
+  const dpr = window.devicePixelRatio;
+  const W   = canvas.width  / dpr;
+  const H   = canvas.height / dpr;
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(vp.x, vp.y);
+  ctx.scale(vp.scale, vp.scale);
+
+  const gr  = getGlassRect();
+  const sc  = vp.scale;
+
+  // ── read values ──
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac') || 48;
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac')  || 36;
+  // Sin medidas base no hay nada real que dibujar: el rectángulo 48×36
+  // anterior se leía como datos. Solo se pinta la referencia punteada.
+  const hasBase = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac') > 0 &&
+                  readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac')  > 0;
+  const pI_A   = readVal('pI-a-whole','pI-a-frac');
+  const pI_B   = readVal('pI-b-whole','pI-b-frac');
+  const pD_A   = readVal('pD-a-whole','pD-a-frac');
+  const pD_B   = readVal('pD-b-whole','pD-b-frac');
+  const t_A    = readVal('t-a-whole', 't-a-frac');
+  const t_B    = readVal('t-b-whole', 't-b-frac');
+  const p_A    = readVal('p-a-whole', 'p-a-frac');
+  const p_B    = readVal('p-b-whole', 'p-b-frac');
+
+  // ── compute desnivel offsets (in pixels) ──
+  // These represent how much the ROUGH OPENING deviates from the LEVEL reference
+  // Positive = wall leans IN (toward center), negative = wall leans OUT
+  const EXAG = Math.min(gr.w, gr.h) * 0.15;
+  const clamp = function(v, lim) { return Math.max(-lim, Math.min(lim, v)); };
+
+  const pIMax = Math.max(pI_A, pI_B, 1);
+  const pDMax = Math.max(pD_A, pD_B, 1);
+  const tMax  = Math.max(t_A,  t_B,  1);
+  const pMax  = Math.max(p_A,  p_B,  1);
+
+  // Left wall desnivel: pI_A vs pI_B
+  // If pI_A > pI_B: bottom is further out = top leans IN = top shifts RIGHT (toward center)
+  const leftOffsetTop    = clamp(((pI_A - pI_B) / pIMax) * EXAG, EXAG);
+  const leftOffsetBottom = 0;
+
+  // Right wall desnivel: pD_A vs pD_B  
+  // If pD_A > pD_B: bottom is further out = top leans IN = top shifts LEFT (toward center)
+  const rightOffsetTop    = -clamp(((pD_A - pD_B) / pDMax) * EXAG, EXAG);
+  const rightOffsetBottom = 0;
+
+  // Ceiling desnivel: t_A vs t_B — LEFT is 0,0, offset is on RIGHT
+  const topOffsetLeft  = 0;
+  const topOffsetRight = clamp(((t_A - t_B) / tMax) * EXAG * (gr.h / gr.w), EXAG);
+
+  // Floor desnivel: p_A vs p_B — LEFT is 0,0, offset is on RIGHT
+  const bottomOffsetLeft  = 0;
+  const bottomOffsetRight = clamp(-((p_A - p_B) / pMax) * EXAG * (gr.h / gr.w), EXAG);
+
+  // ── LEVEL REFERENCE rectangle (dashed) = where the straight frame goes ──
+  const levelTL = { x: gr.x, y: gr.y };
+  const levelTR = { x: gr.x + gr.w, y: gr.y };
+  const levelBR = { x: gr.x + gr.w, y: gr.y + gr.h };
+  const levelBL = { x: gr.x, y: gr.y + gr.h };
+
+  // ── ROUGH OPENING (solid blue) = actual deformed wall opening ──
+  const roughTL = { x: gr.x + leftOffsetTop,    y: gr.y + topOffsetLeft };
+  const roughTR = { x: gr.x + gr.w + rightOffsetTop,   y: gr.y + topOffsetRight };
+  const roughBR = { x: gr.x + gr.w + rightOffsetBottom, y: gr.y + gr.h + bottomOffsetRight };
+  const roughBL = { x: gr.x + leftOffsetBottom,  y: gr.y + gr.h + bottomOffsetLeft };
+
+  // Draw level reference (dashed gray rectangle)
+  ctx.save();
+  ctx.setLineDash([5 / sc, 5 / sc]);
+  ctx.strokeStyle = '#adb5bd';
+  ctx.lineWidth = 1.5 / sc;
+  ctx.beginPath();
+  ctx.moveTo(levelTL.x, levelTL.y);
+  ctx.lineTo(levelTR.x, levelTR.y);
+  ctx.lineTo(levelBR.x, levelBR.y);
+  ctx.lineTo(levelBL.x, levelBL.y);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+
+  if (hasBase) {
+  // Draw rough opening (solid blue shape)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(roughTL.x, roughTL.y);
+  ctx.lineTo(roughTR.x, roughTR.y);
+  ctx.lineTo(roughBR.x, roughBR.y);
+  ctx.lineTo(roughBL.x, roughBL.y);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(25, 113, 194, 0.08)';
+  ctx.fill();
+  ctx.strokeStyle = '#1971c2';
+  ctx.lineWidth = 2 / sc;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── draw desnivel arrows showing gap between level and rough ──
+  // Left edge: gap between level left edge and rough left edge
+  drawDesnivelArrow(ctx, levelTL, levelBL, roughTL, roughBL, 'left', results.paredIzq, sc);
+  // Right edge
+  drawDesnivelArrow(ctx, levelTR, levelBR, roughTR, roughBR, 'right', results.paredDer, sc);
+  // Top edge
+  drawDesnivelArrow(ctx, levelTL, levelTR, roughTL, roughTR, 'top', results.techo, sc);
+  // Bottom edge
+  drawDesnivelArrow(ctx, levelBL, levelBR, roughBL, roughBR, 'bottom', results.piso, sc);
+
+  // ── step highlight ──
+  drawStepHighlight(ctx, roughTL, roughTR, roughBL, roughBR, currentStep, sc);
+
+    // ── dimension labels: show all 4 calculated measurements ──
+  const anchoTop = results.anchoTop || anchoBot;
+  const altoDer  = results.altoDer  || altoIzq;
+
+  // Bottom width (base)
+  if (anchoBot > 0) drawDimLine(ctx, roughBL.x, roughBL.y + 24/sc, roughBR.x, roughBR.y + 24/sc, toFracStr(anchoBot), sc);
+  // Top width (calculated)
+  if (anchoBot > 0) drawDimLine(ctx, roughTL.x, roughTL.y - 24/sc, roughTR.x, roughTR.y - 24/sc, toFracStr(anchoTop), sc);
+  // Left height (base)
+  if (altoIzq > 0) drawDimLine(ctx, roughTL.x - 24/sc, roughTL.y, roughBL.x - 24/sc, roughBL.y, toFracStr(altoIzq), sc, true);
+  // Right height (calculated)
+  if (altoIzq > 0) drawDimLine(ctx, roughTR.x + 24/sc, roughTR.y, roughBR.x + 24/sc, roughBR.y, toFracStr(altoDer), sc, true);
+  } else {
+    // Estado vacío: solo la referencia punteada + pista (nunca inventar datos)
+    ctx.save();
+    ctx.fillStyle = '#868e96';
+    ctx.font = '600 ' + (14 / sc) + 'px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Ingresa las medidas del hueco', gr.x + gr.w / 2, gr.y + gr.h / 2);
+    ctx.restore();
+  }
+
+  ctx.restore();
+  ctx.restore();
+
+  // 🍞 bread mode — cover the graph area with bread, cropped to shape
+  if (window.BREAD && window.BREAD.isOn()) {
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    window.BREAD.draw(ctx, W, H);
+    ctx.restore();
+  }
+}
+
+// redraw when bread mode toggles
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('breadchange', function () {
+    if (typeof drawCanvas === 'function') drawCanvas();
+  });
+}
+
+function drawDimLine(ctx, x1, y1, x2, y2, label, scale, vertical) {
+  vertical = vertical || false;
+  const tickLen = 6 / scale;
+  ctx.save();
+  ctx.strokeStyle = '#adb5bd';
+  ctx.lineWidth = 1 / scale;
+  ctx.setLineDash([3 / scale, 3 / scale]);
+  ctx.beginPath();
+  ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  if (!vertical) {
+    ctx.beginPath(); ctx.moveTo(x1, y1 - tickLen); ctx.lineTo(x1, y1 + tickLen); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2, y2 - tickLen); ctx.lineTo(x2, y2 + tickLen); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(x1 - tickLen, y1); ctx.lineTo(x1 + tickLen, y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2 - tickLen, y2); ctx.lineTo(x2 + tickLen, y2); ctx.stroke();
+  }
+  ctx.fillStyle = '#495057';
+  ctx.font = 'bold ' + (12 / scale) + 'px Inter, system-ui, sans-serif';
+  if (!vertical) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(label, (x1 + x2) / 2, y1 - 2 / scale);
+  } else {
+    ctx.save(); ctx.translate((x1 + x2) / 2, (y1 + y2) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(label, 0, -2 / scale);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawDesnivelArrow(ctx, levelP1, levelP2, roughP1, roughP2, side, result, scale) {
+  const HAS_DESNIVEL = (result && result.val > 0);
+  const COLOR = HAS_DESNIVEL ? '#e67700' : '#868e96';
+  const ARROW_HEAD = 8 / scale;
+  const fs = 12 / scale;
+  const PAD = 18 / scale;
+
+  ctx.save();
+
+  // Compute the offset at the "active" end of the edge
+  // For vertical edges (left/right): offset is horizontal at the TOP
+  // For horizontal edges (top/bottom): offset is vertical at the RIGHT
+  let offsetPx, arrowX, arrowY, labelX, labelY;
+
+  if (side === 'left') {
+    // Left edge: offset at top = roughTL.x - levelTL.x → draw at TOP end
+    offsetPx = roughP1.x - levelP1.x;
+    arrowY = levelP1.y;
+    arrowX = levelP1.x;
+    labelX = Math.min(levelP1.x, roughP1.x) - PAD;
+    labelY = arrowY;
+  } else if (side === 'right') {
+    // Right edge: offset at top = roughTR.x - levelTR.x → draw at TOP end
+    offsetPx = roughP1.x - levelP1.x;
+    arrowY = levelP1.y;
+    arrowX = levelP1.x;
+    labelX = Math.max(levelP1.x, roughP1.x) + PAD;
+    labelY = arrowY;
+  } else { // top / bottom — offset at RIGHT end (P2), arrow at RIGHT end
+    offsetPx = roughP2.y - levelP2.y;
+    arrowX = levelP2.x;
+    arrowY = levelP2.y;
+    labelX = arrowX;
+    labelY = side === 'top'
+      ? Math.min(levelP2.y, roughP2.y) - PAD
+      : Math.max(levelP2.y, roughP2.y) + PAD;
+  }
+
+  const MIN_VISUAL = 0.5 / scale;
+  if (Math.abs(offsetPx) < MIN_VISUAL && !HAS_DESNIVEL) {
+    ctx.restore();
+    return;
+  }
+
+  // Draw arrow from level position to rough position
+  if (Math.abs(offsetPx) > MIN_VISUAL) {
+    let ax2, ay2;
+    if (side === 'left' || side === 'right') {
+      ax2 = arrowX + offsetPx;
+      ay2 = arrowY;
+    } else {
+      ax2 = arrowX;
+      ay2 = arrowY + offsetPx;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(arrowX, arrowY);
+    ctx.lineTo(ax2, ay2);
+    ctx.strokeStyle = COLOR;
+    ctx.lineWidth = 1.8 / scale;
+    ctx.stroke();
+
+        // Tick + measurement label at the offset point
+    const tickLen = 4 / scale;
+    ctx.fillStyle = COLOR;
+    ctx.font = "bold " + (11 / scale) + "px Inter, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    if (side === "left" || side === "right") {
+      ctx.beginPath();
+      ctx.moveTo(ax2, ay2 - tickLen);
+      ctx.lineTo(ax2, ay2 + tickLen);
+      ctx.stroke();
+      ctx.textAlign = side === "left" ? "right" : "left";
+      ctx.fillText(HAS_DESNIVEL ? result.label : "", ax2 + (side === "left" ? -14/scale : 14/scale), ay2);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(ax2 - tickLen, ay2);
+      ctx.lineTo(ax2 + tickLen, ay2);
+      ctx.stroke();
+      // Roof/floor labels sit BELOW the clamped RIGHT-end point (mirrors the
+      // dashboard embed graph): keeps the roof label clear of the right-wall
+      // label sharing the top-right corner.
+      ctx.textBaseline = "top";
+      ctx.fillText(HAS_DESNIVEL ? result.label : "", ax2, ay2 + 14/scale);
+    }
+  }
+  ctx.restore();
+}
+
+// ── step highlight: glow the active edge ──
+function drawStepHighlight(ctx, TL, TR, BL, BR, step, sc) {
+  if (step < 2 || step > 5) return;
+  ctx.save();
+  ctx.strokeStyle = '#f59f00';
+  ctx.lineWidth = 4 / sc;
+  ctx.shadowColor = '#f59f00';
+  ctx.shadowBlur = 8 / sc;
+  ctx.beginPath();
+  if (step === 2) { ctx.moveTo(TL.x, TL.y); ctx.lineTo(BL.x, BL.y); }
+  else if (step === 3) { ctx.moveTo(TR.x, TR.y); ctx.lineTo(BR.x, BR.y); }
+  else if (step === 4) { ctx.moveTo(TL.x, TL.y); ctx.lineTo(TR.x, TR.y); }
+  else if (step === 5) { ctx.moveTo(BL.x, BL.y); ctx.lineTo(BR.x, BR.y); }
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ─── PER-FIELD FOCUS VIEWS ───────────────────────────────────────────────
+const FIELD_VIEWS = {
+  'pI-a-whole': { focusX: 0.0, focusY: 1.0, zoom: 4.8 },
+  'pI-a-frac':  { focusX: 0.0, focusY: 1.0, zoom: 4.8 },
+  'pI-b-whole': { focusX: 0.0, focusY: 0.0, zoom: 4.8 },
+  'pI-b-frac':  { focusX: 0.0, focusY: 0.0, zoom: 4.8 },
+  'pD-a-whole': { focusX: 1.0, focusY: 1.0, zoom: 4.8 },
+  'pD-a-frac':  { focusX: 1.0, focusY: 1.0, zoom: 4.8 },
+  'pD-b-whole': { focusX: 1.0, focusY: 0.0, zoom: 4.8 },
+  'pD-b-frac':  { focusX: 1.0, focusY: 0.0, zoom: 4.8 },
+  't-a-whole': { focusX: 0.0, focusY: 0.0, zoom: 4.8 },
+  't-a-frac':  { focusX: 0.0, focusY: 0.0, zoom: 4.8 },
+  't-b-whole': { focusX: 1.0, focusY: 0.0, zoom: 4.8 },
+  't-b-frac':  { focusX: 1.0, focusY: 0.0, zoom: 4.8 },
+  'p-a-whole': { focusX: 0.0, focusY: 1.0, zoom: 4.8 },
+  'p-a-frac':  { focusX: 0.0, focusY: 1.0, zoom: 4.8 },
+  'p-b-whole': { focusX: 1.0, focusY: 1.0, zoom: 4.8 },
+  'p-b-frac':  { focusX: 1.0, focusY: 1.0, zoom: 4.8 },
+  'hueco-ancho-bot-whole': { focusX: 0.5, focusY: 0.9, zoom: 0.85 },
+  'hueco-ancho-bot-frac':  { focusX: 0.5, focusY: 0.9, zoom: 0.85 },
+  'hueco-alto-izq-whole':  { focusX: 0.1, focusY: 0.5, zoom: 0.85 },
+  'hueco-alto-izq-frac':   { focusX: 0.1, focusY: 0.5, zoom: 0.85 },
+};
+
+let activeFieldId = null;
+
+function focusField(fieldId) {
+  const sv = FIELD_VIEWS[fieldId];
+  if (!sv) return;
+  activeFieldId = fieldId;
+  const W  = canvas.width  / window.devicePixelRatio;
+  const H  = canvas.height / window.devicePixelRatio;
+  const gr = getGlassRect();
+  const wx = gr.x + sv.focusX * gr.w;
+  const wy = gr.y + sv.focusY * gr.h;
+  vpTarget.scale = sv.zoom;
+  vpTarget.x = W / 2 - wx * sv.zoom;
+  vpTarget.y = H / 2 - wy * sv.zoom;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  smoothAnimate();
+}
+
+function blurField() {
+  activeFieldId = null;
+  animateCanvas(currentStep);
+}
+
+// ─── WIRE UP INPUTS ────────────────────────────────────────────────────────
+function _onWizardInput(e) {
+  const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+  if (!['input','select','textarea'].includes(tag)) return;
+  recalcAll();
+  hideStepError(currentStep);
+  saveDraft();
+  _dirtyResetSaveButton();
+}
+document.addEventListener('input',  _onWizardInput);
+document.addEventListener('change', _onWizardInput);
+
+document.addEventListener('focusin', function(e) {
+  const id = e.target.id;
+  if (FIELD_VIEWS[id]) focusField(id);
+});
+
+document.addEventListener('focusout', function(e) {
+  const id = e.target.id;
+  if (FIELD_VIEWS[id]) blurField();
+});
+
+document.addEventListener('mouseover', function(e) {
+  const col = e.target.closest('.input-col');
+  if (!col) return;
+  const inp = col.querySelector('input[type="number"]');
+  if (inp && FIELD_VIEWS[inp.id]) focusField(inp.id);
+});
+
+document.addEventListener('mouseout', function(e) {
+  const col = e.target.closest('.input-col');
+  if (!col) return;
+  const related = e.relatedTarget;
+  if (!related || !col.contains(related)) blurField();
+});
+
+window.addEventListener('resize', resizeCanvas);
+
+// ─── DRAG TO PAN ──────────────────────────────────────────────────────────
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let vpAtDrag  = { x: 0, y: 0 };
+let userZoomed = false; // single source of truth: manual pan/zoom state (reset on step change)
+
+if (canvas) {
+canvas.addEventListener('mousedown', function(e) {
+  if (e.button !== 0) return;
+  isDragging = true;
+  dragStart = { x: e.clientX, y: e.clientY };
+  vpAtDrag  = { x: vp.x, y: vp.y };
+  canvas.style.cursor = 'grabbing';
+});
+window.addEventListener('mousemove', function(e) {
+  if (!isDragging) return;
+  const dx = e.clientX - dragStart.x;
+  const dy = e.clientY - dragStart.y;
+  vp.x = vpAtDrag.x + dx; vp.y = vpAtDrag.y + dy;
+  vpTarget.x = vp.x; vpTarget.y = vp.y;
+  userZoomed = true;
+  _syncResetZoomBtn();
+  drawCanvas();
+});
+window.addEventListener('mouseup', function() { isDragging = false; canvas.style.cursor = 'grab'; });
+canvas.style.cursor = 'grab';
+
+// ─── TOUCH + ZOOM HANDLING ───
+let touchDragStart = null;
+let lastPinchDist  = null;
+
+// (b) el botón "Restablecer" zoom solo aparece cuando hay zoom/paneo manual activo
+function _syncResetZoomBtn() {
+  const btn = document.getElementById('reset-zoom-btn');
+  if (btn) btn.style.display = userZoomed ? '' : 'none';
+}
+
+function applyZoom(cx, cy, factor) {
+  const clampedFactor = Math.max(0.85, Math.min(1.18, factor));
+  userZoomed = true;
+  _syncResetZoomBtn();
+  const newScale = Math.max(0.3, Math.min(10, vp.scale * clampedFactor));
+  const sf = newScale / vp.scale;
+  vp.x = cx - sf * (cx - vp.x);
+  vp.y = cy - sf * (cy - vp.y);
+  vp.scale = newScale;
+  vpTarget.x = vp.x; vpTarget.y = vp.y; vpTarget.scale = vp.scale;
+  drawCanvas();
+}
+
+canvas.addEventListener('touchstart', function(e) {
+  if (e.touches.length === 1) {
+    touchDragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, vpx: vp.x, vpy: vp.y };
+    lastPinchDist = null;
+  } else if (e.touches.length === 2) {
+    touchDragStart = null;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastPinchDist = Math.sqrt(dx*dx + dy*dy);
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+  if (e.touches.length === 1 && touchDragStart) {
+    const dx = e.touches[0].clientX - touchDragStart.x;
+    const dy = e.touches[0].clientY - touchDragStart.y;
+    vp.x = touchDragStart.vpx + dx;
+    vp.y = touchDragStart.vpy + dy;
+    vpTarget.x = vp.x; vpTarget.y = vp.y;
+    userZoomed = true;
+    _syncResetZoomBtn();
+    drawCanvas();
+  } else if (e.touches.length === 2 && lastPinchDist !== null) {
+    const dx   = e.touches[0].clientX - e.touches[1].clientX;
+    const dy   = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const rect = canvas.getBoundingClientRect();
+    const cx   = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+    const cy   = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+    applyZoom(cx, cy, 1 + (dist / lastPinchDist - 1) * 0.3);
+    lastPinchDist = dist;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', function(e) {
+  if (e.touches.length === 0) { touchDragStart = null; lastPinchDist = null; }
+  if (e.touches.length < 2)   { lastPinchDist = null; }
+}, { passive: true });
+
+// mouse wheel zoom
+canvas.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  applyZoom(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 1.03 : 0.97);
+}, { passive: false });
+
+// 🏳️‍⚧️ trans rights — built with love
+} // end if (canvas)
+
+// reset zoom button
+window.resetZoom = function() { userZoomed = false; _syncResetZoomBtn(); animateCanvas(currentStep); };
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+if (canvas) {
+  resizeCanvas();
+  history.replaceState({ step: 0 }, '', '#step-0');
+  goStep(0, true, true); // skipSave: no pisar un borrador existente antes de restaurarlo
+  restoreDraft(); // reanuda el borrador si existe (los selects se restauran de nuevo abajo, ya con fracciones)
+}
+
+window.embedGraph = function(cvs, data) {
+  if (!cvs || !data) return;
+  // Extract numeric magnitudes from labels like '→ 1/4"' or '47 1/4"'.
+  // The fraction may have no whole part ("1/4"" = 0.25, NOT 1).
+  function ev(s) {
+    if (!s || s === 'Nivel' || s === '-') return 0;
+    var m = s.match(/(?:(\d+)\s+)?(\d+)\/(\d+)|(\d+(?:\.\d+)?)/);
+    if (!m) return 0;
+    if (m[2] !== undefined) return (parseInt(m[1]) || 0) + (parseInt(m[2]) / parseInt(m[3]));
+    return parseFloat(m[4]) || 0;
+  }
+  // Direction arrows give the sign (same convention as the main app):
+  // paredIzq '→'/paredDer '←'/techo '↓'/piso '↑' = raw>0, opposite = raw<0.
+  function neg(s, ch) { return !!s && s.indexOf(ch) !== -1; }
+  var pIs = neg(data.pIL, '←') ? -1 : 1;
+  var pDs = neg(data.pDL, '→') ? -1 : 1;
+  var tSs = neg(data.tL, '↑') ? -1 : 1;
+  var pSs = neg(data.pL, '↓') ? -1 : 1;
+  var pIv = ev(data.pIL);
+  var pDv = ev(data.pDL);
+  var tcv = ev(data.tL);
+  var psv = ev(data.pL);
+  // Set override data so drawCanvas reads these instead of DOM inputs
+  window._embedData = {
+    'hueco-ancho-bot-whole': data.anchoBot || 36,
+    'hueco-alto-izq-whole': data.altoIzq || 84,
+    'pI-a-whole': pIv,
+    'pI-b-whole': 0,
+    'pD-a-whole': pDv,
+    'pD-b-whole': 0,
+    't-a-whole': tcv,
+    't-b-whole': 0,
+    'p-a-whole': psv,
+    'p-b-whole': 0,
+  };
+  window.results = {
+    paredIzq: { raw: pIv, dir: "", label: data.pIL || "Nivel" },
+    paredDer: { raw: pDv, dir: "", label: data.pDL || "Nivel" },
+    techo: { raw: tcv, dir: "", label: data.tL || "Nivel" },
+    piso: { raw: psv, dir: "", label: data.pL || "Nivel" }
+  };
+
+  // ── interactive embedded graph: same pan/zoom engine as the main app ──
+  var W = cvs.width, H = cvs.height;
+  var st = cvs.__nvState = (cvs.__nvState || { x: 0, y: 0, scale: 1 });
+
+  function drawEmbed() {
+    var dctx = cvs.getContext('2d');
+    dctx.clearRect(0,0,W,H);
+    dctx.save();
+    dctx.translate(st.x, st.y);
+    dctx.scale(st.scale, st.scale);
+
+    dctx.fillStyle = '#f8faff';
+    dctx.fillRect(0,0,W,H);
+
+    var pad = 72;
+    var bx = pad, by = pad, bw = W - pad*2, bh = H - pad*2;
+    var EXAG = Math.min(bw, bh) * 0.15;
+    var clamp = function(v, lim) { return Math.max(-lim, Math.min(lim, v)); };
+    var pIMax = Math.max(pIv, 1);
+    var pDMax = Math.max(pDv, 1);
+    var tMax = Math.max(tcv, 1);
+    var pMax = Math.max(psv, 1);
+    var leftOffsetTop = pIs * clamp(((pIv) / pIMax) * EXAG, EXAG);
+    var rightOffsetTop = -pDs * clamp(((pDv) / pDMax) * EXAG, EXAG);
+    var topOffsetRight = tSs * clamp(((tcv) / tMax) * EXAG * (bh / bw), EXAG);
+    var bottomOffsetRight = -pSs * clamp(((psv) / pMax) * EXAG * (bh / bw), EXAG);
+    var roughTL = { x: bx + leftOffsetTop, y: by };
+    var roughTR = { x: bx + bw + rightOffsetTop, y: by + topOffsetRight };
+    var roughBR = { x: bx + bw, y: by + bh + bottomOffsetRight };
+    var roughBL = { x: bx, y: by + bh };
+
+    // level reference (dashed gray)
+    dctx.strokeStyle = '#adb5bd';
+    dctx.lineWidth = 1.5 / st.scale;
+    dctx.setLineDash([5 / st.scale, 5 / st.scale]);
+    dctx.strokeRect(bx, by, bw, bh);
+    dctx.setLineDash([]);
+
+    // rough opening (solid blue)
+    dctx.beginPath();
+    dctx.moveTo(roughTL.x, roughTL.y);
+    dctx.lineTo(roughTR.x, roughTR.y);
+    dctx.lineTo(roughBR.x, roughBR.y);
+    dctx.lineTo(roughBL.x, roughBL.y);
+    dctx.closePath();
+    dctx.fillStyle = 'rgba(25,113,194,0.08)';
+    dctx.fill();
+    dctx.strokeStyle = '#1971c2';
+    dctx.lineWidth = 2 / st.scale;
+    dctx.stroke();
+
+    // desnivel arrows (gap between level and rough, at the moving corner)
+    // vertical edges → TOP end; horizontal edges → RIGHT end (keeps clear of centered dim labels)
+    var drawArrow = function(p1, p2, off, horiz, label) {
+      if (!label || label === 'Nivel' || label === '-') return;
+      dctx.save();
+      dctx.strokeStyle = '#e67700';
+      dctx.fillStyle = '#e67700';
+      dctx.lineWidth = 1.8 / st.scale;
+      var x1 = horiz ? p1.x + off : p1.x;
+      var y1 = horiz ? p1.y : p1.y + off;
+      var x2 = horiz ? p2.x + off : p2.x;
+      var y2 = horiz ? p2.y : p2.y + off;
+      dctx.beginPath(); dctx.moveTo(x1, y1); dctx.lineTo(x2, y2); dctx.stroke();
+      dctx.font = 'bold ' + (11 / st.scale) + 'px Inter, system-ui, sans-serif';
+      dctx.textAlign = 'center';
+      dctx.textBaseline = 'middle';
+      dctx.fillText(label, (x1 + x2) / 2, (y1 + y2) / 2 - (horiz ? 10 / st.scale : -10 / st.scale));
+      dctx.restore();
+    };
+    // left/right edges: horizontal offset arrows at TOP (where the lean is)
+    if (data.pIL && data.pIL !== 'Nivel' && data.pIL !== '-') drawArrow({x: bx, y: by}, {x: bx + leftOffsetTop, y: by}, 0, true, data.pIL);
+    if (data.pDL && data.pDL !== 'Nivel' && data.pDL !== '-') drawArrow({x: bx + bw, y: by}, {x: bx + bw + rightOffsetTop, y: by}, 0, true, data.pDL);
+    // top/bottom edges: vertical offset arrows at RIGHT end (where the tilt is)
+    if (data.tL && data.tL !== 'Nivel' && data.tL !== '-') drawArrow({x: bx + bw, y: by}, {x: bx + bw, y: by + topOffsetRight}, 0, false, data.tL);
+    if (data.pL && data.pL !== 'Nivel' && data.pL !== '-') drawArrow({x: bx + bw, y: by + bh}, {x: bx + bw, y: by + bh + bottomOffsetRight}, 0, false, data.pL);
+
+    // dimension labels
+    var anchoBot = data.anchoBot || 36;
+    var altoIzq = data.altoIzq || 84;
+    // M39: when the caller passes the measured top/right dimensions, label
+    // the drawing with those real values instead of deriving them from the
+    // offsets (out-of-square openings are not perfect rectangles).
+    var anchoTop = (typeof data.anchoTop === 'number' && isFinite(data.anchoTop)) ? data.anchoTop : anchoBot - pIv - pDv;
+    var altoDer = (typeof data.altoDer === 'number' && isFinite(data.altoDer)) ? data.altoDer : altoIzq - tcv - psv;
+    var dim = function(x1, y1, x2, y2, label, vertical) {
+      dctx.save();
+      dctx.strokeStyle = '#adb5bd';
+      dctx.lineWidth = 1 / st.scale;
+      dctx.setLineDash([3 / st.scale, 3 / st.scale]);
+      dctx.beginPath(); dctx.moveTo(x1, y1); dctx.lineTo(x2, y2); dctx.stroke();
+      dctx.setLineDash([]);
+      var tl = 6 / st.scale;
+      if (!vertical) {
+        dctx.beginPath(); dctx.moveTo(x1, y1 - tl); dctx.lineTo(x1, y1 + tl); dctx.stroke();
+        dctx.beginPath(); dctx.moveTo(x2, y2 - tl); dctx.lineTo(x2, y2 + tl); dctx.stroke();
+      } else {
+        dctx.beginPath(); dctx.moveTo(x1 - tl, y1); dctx.lineTo(x1 + tl, y1); dctx.stroke();
+        dctx.beginPath(); dctx.moveTo(x2 - tl, y2); dctx.lineTo(x2 + tl, y2); dctx.stroke();
+      }
+      dctx.fillStyle = '#495057';
+      dctx.font = 'bold ' + (12 / st.scale) + 'px Inter, system-ui, sans-serif';
+      if (!vertical) { dctx.textAlign = 'center'; dctx.textBaseline = 'bottom'; dctx.fillText(label, (x1 + x2) / 2, y1 - 2 / st.scale); }
+      else { dctx.save(); dctx.translate((x1 + x2) / 2, (y1 + y2) / 2); dctx.rotate(-Math.PI / 2); dctx.textAlign = 'center'; dctx.textBaseline = 'bottom'; dctx.fillText(label, 0, -2 / st.scale); dctx.restore(); }
+      dctx.restore();
+    };
+    if (anchoBot > 0) dim(roughBL.x, roughBL.y + 24 / st.scale, roughBR.x, roughBR.y + 24 / st.scale, toFracStr(anchoBot));
+    if (anchoBot > 0) dim(roughTL.x, roughTL.y - 24 / st.scale, roughTR.x, roughTR.y - 24 / st.scale, toFracStr(Math.max(0, anchoTop)));
+    if (altoIzq > 0) dim(roughTL.x - 24 / st.scale, roughTL.y, roughBL.x - 24 / st.scale, roughBL.y, toFracStr(altoIzq), true);
+    if (altoIzq > 0) dim(roughTR.x + 24 / st.scale, roughTR.y, roughBR.x + 24 / st.scale, roughBR.y, toFracStr(Math.max(0, altoDer)), true);
+
+    // 🍞 bread mode — cover the graph area with bread, cropped to shape
+    if (window.BREAD && window.BREAD.isOn()) {
+      dctx.save();
+      dctx.scale(1 / st.scale, 1 / st.scale);
+      window.BREAD.draw(dctx, W, H);
+      dctx.restore();
+    }
+
+    dctx.restore();
+  }
+
+  drawEmbed();
+
+  // wire pan/zoom once
+  if (!cvs.__nvWired) {
+    cvs.__nvWired = true;
+    var isDrag = false, dragStart = {x:0,y:0}, vpAtDrag = {x:0,y:0};
+    var touchDrag = null, lastPinch = null;
+    function applyZoom(cx, cy, factor) {
+      var ns = Math.max(0.3, Math.min(10, st.scale * Math.max(0.85, Math.min(1.18, factor))));
+      var sf = ns / st.scale;
+      st.x = cx - sf * (cx - st.x);
+      st.y = cy - sf * (cy - st.y);
+      st.scale = ns;
+      drawEmbed();
+    }
+    cvs.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      isDrag = true; dragStart = {x: e.clientX, y: e.clientY}; vpAtDrag = {x: st.x, y: st.y};
+      cvs.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!isDrag) return;
+      st.x = vpAtDrag.x + (e.clientX - dragStart.x);
+      st.y = vpAtDrag.y + (e.clientY - dragStart.y);
+      drawEmbed();
+    });
+    window.addEventListener('mouseup', function() { isDrag = false; cvs.style.cursor = 'grab'; });
+    cvs.style.cursor = 'grab';
+    cvs.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var r = cvs.getBoundingClientRect();
+      applyZoom(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.03 : 0.97);
+    }, { passive: false });
+    cvs.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) touchDrag = {x: e.touches[0].clientX, y: e.touches[0].clientY, sx: st.x, sy: st.y};
+      else if (e.touches.length === 2) {
+        touchDrag = null;
+        var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastPinch = Math.sqrt(dx*dx + dy*dy);
+      }
+    }, { passive: false });
+    cvs.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (e.touches.length === 1 && touchDrag) {
+        st.x = touchDrag.sx + (e.touches[0].clientX - touchDrag.x);
+        st.y = touchDrag.sy + (e.touches[0].clientY - touchDrag.y);
+        drawEmbed();
+      } else if (e.touches.length === 2 && lastPinch !== null) {
+        var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var r = cvs.getBoundingClientRect();
+        var cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+        var cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+        applyZoom(cx, cy, 1 + (dist / lastPinch - 1) * 0.3);
+        lastPinch = dist;
+      }
+    }, { passive: false });
+    cvs.addEventListener('touchend', function() { touchDrag = null; lastPinch = null; });
+  }
+};
+
+// ─── FOTO CON MEDIDAS (optional step 6) ───────────────────────────────────
+// (annotatedPhotoDataUrl se declara arriba, junto al borrador)
+
+window.openPhotoEditor = function() {
+  // pass current measurements to the editor via postMessage after iframe loads
+  const anchoBot = readVal('hueco-ancho-bot-whole','hueco-ancho-bot-frac') || 0;
+  const altoIzq  = readVal('hueco-alto-izq-whole', 'hueco-alto-izq-frac')  || 0;
+  const anchoTop = results.anchoTop || 0;
+  const altoDer  = results.altoDer  || 0;
+  const payload = {
+    type: 'NIVELATO_MEASUREMENTS',
+    anchoBot, anchoTop, altoIzq, altoDer,
+    paredIzq: results.paredIzq?.label,
+    paredDer: results.paredDer?.label,
+    techo:    results.techo?.label,
+    piso:     results.piso?.label,
+    customer: document.getElementById('customer-name')?.value || ''
+  };
+  // in-app iframe modal — no popup tab (mobile browsers kill popup tabs)
+  const overlay = document.getElementById('photo-editor-overlay');
+  if (!overlay) return;
+  const frame = document.getElementById('photo-editor-frame');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  frame.onload = function() {
+    try { frame.contentWindow.postMessage(payload, window.location.origin); } catch (e) {}
+  };
+  frame.src = 'photo.html';
+};
+
+window.closePhotoEditor = function() {
+  const overlay = document.getElementById('photo-editor-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.getElementById('photo-editor-frame').src = 'about:blank';
+    document.body.style.overflow = '';
+  }
+};
+
+window.skipPhoto = function() { nextStep(); };
+
+window.removePhoto = function() {
+  annotatedPhotoDataUrl = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('btn-open-photo').textContent = '📷 Agregar foto';
+  saveDraft(); // (e) el borrador ya no debe llevar la foto
+};
+
+window.addEventListener('message', function(e) {
+  if (e.origin !== window.location.origin) return;
+  if (e.data && e.data.type === 'NIVELATO_ANNOTATED_PHOTO' && e.data.dataUrl) {
+    annotatedPhotoDataUrl = e.data.dataUrl;
+    const prev = document.getElementById('photo-preview');
+    const img = document.getElementById('photo-preview-img');
+    if (prev && img) {
+      img.src = annotatedPhotoDataUrl;
+      prev.style.display = 'block';
+      document.getElementById('btn-open-photo').textContent = '📷 Cambiar foto';
+    }
+    try { e.source.postMessage({ type: 'NIVELATO_PHOTO_ACK' }, e.origin); } catch (_) {}
+    if (typeof window.closePhotoEditor === 'function') window.closePhotoEditor();
+    saveDraft(); // (e) la foto anotada entra al borrador en cuanto llega
+  }
+});
+  

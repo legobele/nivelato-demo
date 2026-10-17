@@ -1,0 +1,1290 @@
+/* Nivelato dark UI — design system from the company settings mockup.
+   Near-black surfaces, thin light borders, pill buttons, rounded cards.
+   This file only reskins chrome; graph/canvas systems are untouched. */
+
+:root {
+  color-scheme: dark;
+  --niv-bg: #050505;
+  --niv-surface: #0e0e10;
+  --niv-surface-2: #16161a;
+  --niv-border: rgba(255, 255, 255, 0.28);
+  --niv-border-soft: rgba(255, 255, 255, 0.14);
+  --niv-text: #fafafa;
+  --niv-text-dim: #a8a8b0;
+  --niv-accent: #fafafa;
+  --niv-green: #22c55e;
+  --niv-red: #e5484d;
+  --niv-radius: 6px;
+  --niv-pill: 999px;
+  --niv-inset: 30px;
+}
+
+/* ---- app shell: sidebar + main ---- */
+.niv-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--niv-bg);
+  color: var(--niv-text);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.niv-sidebar {
+  width: 300px;
+  flex: none;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-right: 1px solid var(--niv-border-soft);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.niv-main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+  max-width: 1100px;
+}
+
+/* ---- company card ---- */
+.niv-company-card {
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-radius);
+  padding: 20px 16px;
+  text-align: center;
+  background: var(--niv-surface);
+}
+.niv-company-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+  text-align: left;
+}
+.niv-company-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--niv-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex: none;
+  background: var(--niv-surface-2);
+  overflow: hidden;
+}
+.niv-company-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.niv-company-name { font-weight: 700; font-size: 16px; }
+.niv-company-ver { font-size: 13px; color: var(--niv-text-dim); text-decoration: underline; margin-top: 2px; }
+
+/* ---- nav pills ---- */
+.niv-nav { display: flex; flex-direction: column; gap: 12px; }
+.niv-nav-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--niv-border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--niv-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.niv-nav-btn:hover { background: var(--niv-surface-2); }
+.niv-nav-btn.active {
+  background: linear-gradient(135deg, #fafafa, #c9c9ce);
+  border-color: transparent;
+  font-weight: 700;
+}
+.niv-nav-btn.linklike { text-decoration: underline; }
+
+/* ---- cards ---- */
+/* .niv-settings-card is an alias of .niv-card (same rule, not a copy):
+   settings pages use the settings name, other pages use .niv-card. */
+.niv-card, .niv-settings-card {
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-radius);
+  background: var(--niv-surface);
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.niv-card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.niv-card-desc { font-size: 13px; color: var(--niv-text-dim); margin-bottom: 16px; }
+
+/* ---- pill buttons ---- */
+.niv-btn-pill {
+  display: inline-block;
+  padding: 12px 28px;
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-pill);
+  background: var(--niv-surface-2);
+  color: var(--niv-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+}
+.niv-btn-pill:hover { background: #2a2a2f; }
+.niv-btn-primary {
+  background: var(--niv-accent);
+  border-color: transparent;
+}
+.niv-btn-danger {
+  background: var(--niv-red);
+  border-color: transparent;
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+}
+
+/* ---- form fields ---- */
+.niv-field { margin-bottom: 12px; }
+.niv-field label { display: block; font-size: 12px; font-weight: 600; color: var(--niv-text-dim); margin-bottom: 6px; }
+.niv-field input, .niv-field select, .niv-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  /* 16px floor (p5): sub-16px inputs make iOS Safari auto-zoom on focus. */
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--niv-text);
+  background: var(--niv-surface-2);
+  border: 1px solid var(--niv-border-soft);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+.niv-field input:focus, .niv-field select:focus, .niv-field textarea:focus {
+  outline: none;
+  border-color: var(--niv-accent);
+}
+/* p33: keyboard focus must be visible, not a border tint alone. Modelled
+   on the login language toggle's 2px outline. */
+.niv-field input:focus-visible, .niv-field select:focus-visible, .niv-field textarea:focus-visible {
+  outline: 2px solid var(--niv-accent);
+  outline-offset: 1px;
+}
+
+/* ---- toggle switches (iOS style, green) ---- */
+.niv-switch { position: relative; width: 52px; height: 30px; flex: none; cursor: pointer; }
+.niv-switch input { opacity: 0; width: 0; height: 0; }
+.niv-switch .track {
+  position: absolute; inset: 0;
+  background: #3a3a3e;
+  border-radius: var(--niv-pill);
+  transition: background 0.2s;
+}
+.niv-switch .track::after {
+  content: ""; position: absolute;
+  top: 3px; left: 3px; width: 24px; height: 24px;
+  background: #fff; border-radius: 50%;
+  transition: transform 0.2s;
+}
+.niv-switch input:checked + .track { background: var(--niv-green); }
+.niv-switch input:checked + .track::after { transform: translateX(22px); }
+
+/* ---- user list rows ---- */
+.niv-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--niv-border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background: var(--niv-surface);
+}
+.niv-user-row.selected {
+  background: linear-gradient(135deg, #fafafa, #c9c9ce);
+  border-color: transparent;
+}
+.niv-user-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #fff;
+  overflow: hidden;
+}
+.niv-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.niv-user-name { font-weight: 600; font-size: 14px; }
+.niv-user-email { font-size: 12px; color: var(--niv-text-dim); }
+.niv-user-row.selected .niv-user-email { color: rgba(255,255,255,0.85); }
+
+/* ---- misc ---- */
+.niv-page-title { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+.niv-page-sub { font-size: 14px; color: var(--niv-text-dim); margin-bottom: 24px; }
+.niv-status { font-size: 13px; padding: 10px 14px; border-radius: 12px; margin-top: 12px; display: none; }
+.niv-status.ok { display: block; background: rgba(34,197,94,0.15); color: #4ade80; }
+.niv-status.err { display: block; background: rgba(229,72,77,0.15); color: #f87171; }
+
+/* ---- settings shell: floating cards, same language as the dashboard ----
+   The settings pages (account + company) use .niv-shell with .niv-sidebar
+   and .niv-main. Both become floating cards on the shared inset token:
+   nothing touches the viewport edges, the sidebar is a surface card and
+   the main area a bordered frame the inner cards pop against. */
+body:not(.has-sidebar) .niv-shell {
+  padding: var(--niv-inset);
+  gap: var(--niv-inset);
+  box-sizing: border-box;
+}
+.niv-sidebar {
+  top: var(--niv-inset);
+  height: calc(100vh - (2 * var(--niv-inset)));
+  background: var(--niv-surface);
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-radius);
+}
+.niv-main {
+  background: var(--niv-bg);
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-radius);
+}
+/* inside the floating sidebar the company head is flat, like the panel head */
+.niv-sidebar .niv-company-card {
+  border: none;
+  background: transparent;
+  padding: 4px 6px 8px;
+  text-align: left;
+}
+.niv-sidebar .niv-company-top { margin-bottom: 0; }
+
+/* ---- tiered nav groups (user tier vs company tier) ---- */
+.niv-nav-group { display: flex; flex-direction: column; gap: 12px; }
+.niv-nav-group + .niv-nav-group {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--niv-border-soft);
+}
+.niv-nav-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--niv-text-dim);
+  padding: 0 4px;
+}
+.niv-nav-btn { position: relative; }
+.niv-nav-btn .nav-sub {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--niv-text-dim);
+  margin-top: 3px;
+}
+.niv-nav-btn.active .nav-sub { color: rgba(255, 255, 255, 0.85); }
+.niv-nav-btn .dot {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--niv-text-dim);
+  background: transparent;
+}
+.niv-nav-btn .dot.on { background: var(--niv-accent); border-color: var(--niv-accent); }
+.niv-nav-btn.soon { color: var(--niv-text-dim); cursor: default; }
+.niv-nav-btn .soon-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--niv-text-dim);
+  border: 1px solid var(--niv-border-soft);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* ---- shared company sidebar (.niv-side) ----
+   One component for the company pages (users, updates): floating card,
+   flat company head, tiered nav groups. Pages only size it in their shell. */
+.niv-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 18px;
+  background: var(--niv-surface);
+  border: 1px solid var(--niv-border);
+  border-radius: var(--niv-radius);
+  overflow-y: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--niv-text);
+  box-sizing: border-box;
+}
+.niv-side-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 6px 8px;
+}
+.niv-side-head .niv-company-avatar { width: 56px; height: 56px; font-size: 18px; }
+.niv-side-head .niv-company-ver { text-decoration: none; }
+
+@media (max-width: 900px) {
+  .niv-shell { flex-direction: column; }
+  body:not(.has-sidebar) .niv-shell { padding: 12px; gap: 16px; }
+  .niv-sidebar {
+    width: auto; height: auto; position: static;
+  }
+  .niv-main { padding: 20px 16px; }
+}
+
+/* ---- sidebar (iPadOS-style): flex element, full height, resizable ---- */
+.niv-shell {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
+}
+.niv-float-panel {
+  flex: none;
+  align-self: stretch;
+  width: 300px;
+  min-width: 76px;
+  max-width: 480px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  resize: horizontal;
+  display: flex;
+  flex-direction: column;
+  background: var(--niv-surface);
+  border-right: 1px solid var(--niv-border);
+  padding: 20px 16px 16px;
+  z-index: 500;
+  user-select: none;
+}
+.niv-shell > main, body.has-sidebar .niv-shell main {
+  flex: 1;
+  min-width: 0;
+}
+.niv-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.niv-panel-bottom {
+  flex: none;
+  padding-top: 12px;
+  border-top: 1px solid var(--niv-border-soft);
+  margin-top: 8px;
+}
+.niv-panel-bottom .niv-nav-btn { width: 100%; }
+/* ---- account card (bottom of sidebar) ---- */
+.niv-account-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--niv-border);
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--niv-text);
+  transition: background 0.15s, border-color 0.15s;
+  min-width: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.niv-account-card:hover { background: var(--niv-surface-2); border-color: var(--niv-border-soft); }
+.niv-account-avatar {
+  width: 40px; height: 40px; flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--niv-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700;
+  color: var(--niv-text-dim);
+  overflow: hidden;
+  background: var(--niv-surface-2);
+}
+.niv-account-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.niv-account-meta { min-width: 0; flex: 1; }
+.niv-account-name {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.niv-account-email {
+  font-size: 12px; color: var(--niv-text-dim);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* ---- collapsed: icon rail ----
+   The rail is its own layout, not the expanded panel squeezed: 76px wide,
+   uniform 16px/10px padding (56px content column), every visible child a
+   40px mark centered on that single axis. Nothing shares a row in the rail:
+   the old head kept the 44px avatar, the 12px gap and the 28px toggle side
+   by side (84px of flex:none children in a 52px content box), which clipped
+   the avatar on one side and pushed the chevron out on the other. The
+   account card likewise keeps its expanded box framing unless it is
+   explicitly dissolved into a bare avatar here. */
+/* M42: no max-width clamp here. A 76px max-width applies the moment the
+   .collapsed class lands and caps the used width while the width
+   transition runs invisibly underneath, so collapse snapped in one
+   frame while expand animated. width: 76px alone lands the rail at
+   exactly 76px and lets the transition interpolate every step. */
+.niv-float-panel.collapsed { width: 76px; min-width: 76px; max-width: none; resize: none; padding: 16px 10px; }
+.niv-float-panel.collapsed .niv-panel-head {
+  flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 8px; padding: 2px 0 10px;
+}
+.niv-float-panel.collapsed .niv-panel-head .niv-company-avatar { width: 40px; height: 40px; font-size: 14px; }
+.niv-float-panel.collapsed .niv-panel-body,
+.niv-float-panel.collapsed .org-badge { display: none; }
+/* m19: the company name and the account meta carry the accessible names
+   of the panel head and the account card in the rail. display:none
+   strips them from the accessibility tree (empty names), so hide them
+   visually instead: out of layout, clipped to 1px, still readable by
+   assistive tech. */
+.niv-float-panel.collapsed .niv-company-name,
+.niv-float-panel.collapsed .niv-account-meta {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
+.niv-float-panel.collapsed .niv-panel-bottom {
+  margin-top: auto; /* the hidden panel body no longer pushes it down: anchor it */
+  display: flex; justify-content: center;
+  padding: 12px 0 0;
+}
+.niv-float-panel.collapsed .niv-account-card {
+  width: 40px; height: 40px; flex: none;
+  padding: 0; margin: 0;
+  border: none; border-radius: 50%; background: transparent;
+  justify-content: center;
+}
+.niv-float-panel.collapsed .niv-account-avatar { width: 40px; height: 40px; }
+/* .niv-account-meta collapsed treatment lives with the m19 rule above
+   (visually hidden, NOT display:none, so the card keeps its name). */
+.niv-float-panel.collapsed .niv-account-popup { left: 84px; right: auto; width: 260px; bottom: 16px; }
+
+.niv-panel-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 4px 2px 12px;
+}
+.niv-panel-head .niv-company-avatar { width: 44px; height: 44px; font-size: 15px; }
+.niv-panel-head .niv-company-name {
+  font-size: 15px; flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.niv-panel-head .niv-panel-collapse { flex: none; }
+/* m12: the panel head is a keyboard-operable menu trigger (dashboard
+   gives it tabindex + role); its focus must be visible. */
+.niv-panel-head:focus-visible { outline: 2px solid var(--niv-accent); outline-offset: 2px; border-radius: 8px; }
+/* m19 (dashboard rail): the dashboard's own collapsed rule sets
+   .niv-snav-label to display:none, which empties the nav buttons'
+   accessible names. This selector outranks that rule (extra body class
+   context) and swaps the removal for a visual-only hide, so each rail
+   button keeps its label as its accessible name. Visual result is
+   identical: no text paints in the rail. */
+body.has-sidebar .niv-float-panel.collapsed .niv-snav-label {
+  display: block; /* explicit: the dashboard rule's display:none must not survive */
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
+/* m16 (CSS part): the collapsed rail's drag-to-expand handle sits at
+   right:-6px in the dashboard's inline CSS and the panel's
+   overflow-x:hidden clips half of its 12px, leaving a ~5px grab area.
+   Two IDs outrank that rule: keep the whole strip inside the panel so
+   the full grab area (now 16px) receives pointer events. The strip
+   starts right of the centered 40px rail icons, so it steals no icon
+   clicks. */
+#niv-panel > #niv-panel-expand-handle { right: 0; width: 16px; }
+.niv-panel-collapse {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--niv-border);
+  background: transparent; color: var(--niv-text);
+  font-size: 16px; cursor: pointer; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+}
+.niv-panel-collapse:hover { background: var(--niv-surface-2); }
+.niv-panel-sec { margin-bottom: 14px; }
+.niv-panel-sec-title { font-size: 13px; color: var(--niv-text-dim); margin-bottom: 8px; padding-left: 4px; }
+.niv-panel-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 4px; font-size: 14px; border-radius: 8px; cursor: pointer;
+}
+.niv-panel-item:hover { background: var(--niv-surface-2); }
+.niv-panel-item > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.niv-panel-item .dots { color: var(--niv-text-dim); letter-spacing: 2px; padding: 4px 8px; border-radius: 6px; }
+.niv-panel-item .dots:hover { background: #2a2a2f; color: var(--niv-text); }
+.niv-panel-empty { font-size: 13px; color: var(--niv-text-dim); padding: 4px 4px 8px; font-style: italic; }
+.niv-panel-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--niv-border-soft); }
+.niv-panel-actions .niv-nav-btn { padding: 10px 14px; font-size: 13px; }
+/* ---- mobile: sidebar becomes hamburger drawer ---- */
+.niv-hamburger { display: none; }
+.niv-scrim { display: none; }
+@media (max-width: 900px) {
+  /* Insurance so no stray wide element can side-scroll the whole app on
+     phones: clip horizontal overflow at the app root, mobile only.
+     overflow-x: clip (not hidden) keeps position: sticky working on the
+     top bar; desktop is untouched because this block is max-width 900px. */
+  body.has-sidebar { overflow-x: clip; }
+  .niv-shell { flex-direction: column; }
+  .niv-float-panel {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 300px; min-width: 300px; max-width: 85vw;
+    min-height: 0; max-height: none; height: 100dvh;
+    resize: none; z-index: 600;
+    border-right: 1px solid var(--niv-border); border-top: none; border-radius: 0;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+    order: 0;
+  }
+  body.nav-open .niv-float-panel { transform: translateX(0); }
+  .niv-float-panel.collapsed { width: 300px; min-width: 300px; max-width: 85vw; }
+  /* B3: the dashboard's inline shell CSS sets #niv-panel{position:relative}
+     (ID specificity) for its collapse feature, which outranked the
+     .niv-float-panel{position:fixed} rule above: on phones the closed
+     panel stayed in flow and reserved its full height (480-570px of
+     black before the content). This selector (ID + class + body class)
+     outranks the bare ID rule, so at <=900px the panel is a fixed
+     overlay drawer regardless of the dashboard's desktop positioning.
+     Desktop is untouched: this block is max-width 900px only. */
+  body.has-sidebar #niv-panel.niv-float-panel { position: fixed; }
+  .niv-hamburger {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex: none;
+    background: transparent; border: 1px solid var(--niv-border); border-radius: 12px;
+    color: var(--niv-text); font-size: 22px; cursor: pointer;
+  }
+  .niv-scrim {
+    position: fixed; inset: 0; z-index: 590;
+    background: rgba(0,0,0,.55);
+  }
+  body.nav-open .niv-scrim { display: block; }
+  /* Shell rule (mobile): no top bar; navigation is the sidebar drawer and
+     the document scrolls (pull-to-refresh). Each shell page applies it in
+     its own mobile block, where its shell geometry lives: dashboard.html
+     carries the reference implementation. Module hosts suppress the
+     topbar module mount at the same widths. */
+}
+
+/* ---- filter row: dark mode ---- */
+.filter-row input, .filter-row select {
+  background: var(--niv-surface-2);
+  border-color: var(--niv-border);
+  color: var(--niv-text);
+}
+/* p5 + p2 + p33 (shared filter controls): the dashboard's own filter
+   CSS sets 13px text and a 38px height on these controls, at lower
+   specificity than the body-prefixed selectors below. 16px text stops
+   the iOS focus auto-zoom, 44px is the minimum touch height, and
+   keyboard focus gets the login-style 2px outline (the dashboard's
+   #filter-date otherwise focuses with no visible indicator). */
+body .filter-row input, body .filter-row select,
+body .date-input-wrap input[type="date"] {
+  font-size: 16px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+body .filter-row input:focus-visible, body .filter-row select:focus-visible,
+body .date-input-wrap input[type="date"]:focus-visible {
+  outline: 2px solid var(--niv-accent);
+  outline-offset: 2px;
+  border-color: var(--niv-accent);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+.filter-row select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23999' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+}
+.filter-row input:focus, .filter-row select:focus {
+  border-color: var(--niv-accent);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+.filter-row select:disabled {
+  color: var(--niv-text-dim);
+  background-color: var(--niv-surface);
+}
+.date-input-wrap input[type="date"] {
+  background: var(--niv-surface-2);
+  border-color: var(--niv-border);
+  color: var(--niv-text);
+  color-scheme: dark;
+  /* Breathing room identical to the other form controls (the filter
+     row input rule only reaches date inputs inside .filter-row; export
+     sections and other wraps rely on this rule). */
+  padding: 9px 14px;
+}
+.date-input-wrap input[type="date"]:focus {
+  border-color: var(--niv-accent);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+.date-input-wrap .date-placeholder { color: var(--niv-text-dim); }
+.date-input-wrap input[type="date"] { color: transparent; }
+.date-input-wrap.has-value input[type="date"],
+.date-input-wrap input[type="date"]:focus { color: var(--niv-text); }
+
+/* ---- measure share flow (dashboard job modal) ----
+   The share panel used to be a hardcoded light box (#f8f9fa panel, #dee2e6
+   border, #495057 title) inside the dark modal, and the member labels
+   inherited the modal's light text onto that white surface, which made
+   them unreadable. The whole flow now rides the tokens; the per-element
+   layout stays inline in dashboard.html, only colors live here. */
+.btn-share-modal {
+  background: rgba(25, 113, 194, 0.12);
+  color: #fafafa;
+  border: 1px solid var(--niv-accent);
+}
+.btn-share-modal:hover { background: rgba(25, 113, 194, 0.22); }
+.niv-share-panel {
+  background: var(--niv-surface-2);
+  border: 1px solid var(--niv-border-soft);
+  color: var(--niv-text);
+}
+.niv-share-title { color: var(--niv-text-dim); }
+.niv-share-member { color: var(--niv-text); }
+.niv-share-member input[type="checkbox"] { accent-color: var(--niv-accent); }
+.niv-share-save { background: var(--niv-accent); color: #fff; }
+.niv-share-save:hover { filter: brightness(1.15); }
+#share-status { color: #4ade80; }
+
+/* job warnings box in the same modal: was #fff3bf / #e67700 (light theme);
+   now mirrors the dark .tag-warn treatment. */
+.niv-warn-box {
+  background: rgba(230, 119, 0, 0.18);
+  color: #fbbf24;
+}
+
+/* ---- niv-select: custom dropdown component ----
+   Replaces the OS-native <select> popup (unstyled white list) with a
+   listbox in the app's visual language. The real <select> stays in the
+   DOM inside .niv-select, visually hidden, as the single source of
+   truth: existing code keeps populating its options and reading its
+   value, and this component only mirrors it (enhancement script in
+   dashboard.html). Reusable anywhere a native select needs the skin:
+   wrap the select, the script does the rest.
+   <div class="niv-select">
+     <select class="niv-select-native">…</select>
+     <button class="niv-select-btn"><span class="niv-select-label">…</span>
+       <span class="niv-select-chevron">svg</span></button>
+     <div class="niv-select-list" role="listbox">
+       <div class="niv-select-option" role="option">…</div>
+     </div>
+   </div> */
+.niv-select {
+  position: relative;
+  display: inline-flex;
+  color-scheme: dark;
+}
+.niv-select-native {
+  /* display:none is REQUIRED, not just visual hiding: iOS Safari renders
+     visually-hidden (opacity:0, absolutely positioned) <select> elements
+     as a raw native pill under the component trigger. display:none is
+     safe here because nothing depends on the select being rendered: the
+     population code only mutates its options, applyFilters() only reads
+     .value, and the component's MutationObserver sync observes DOM
+     mutations, none of which are affected by the select not rendering.
+     Programmatic selectedIndex/value access works normally. */
+  display: none !important;
+}
+.niv-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* p2: 44px minimum touch height (was 38px). */
+  height: 44px;
+  min-width: 150px;
+  padding: 9px 12px 9px 14px;
+  background: var(--niv-surface-2);
+  border: 1.5px solid var(--niv-border-soft);
+  border-radius: 8px;
+  color: var(--niv-text);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.niv-select-btn:hover { border-color: var(--niv-border); }
+.niv-select-btn:focus-visible,
+.niv-select.open .niv-select-btn {
+  border-color: var(--niv-accent);
+  box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.25);
+  outline: none;
+}
+.niv-select-btn:disabled {
+  color: var(--niv-text-dim);
+  background: var(--niv-surface);
+  cursor: default;
+}
+.niv-select-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.niv-select-chevron {
+  flex: none;
+  display: inline-flex;
+  color: var(--niv-text-dim);
+  transition: transform 0.15s;
+}
+.niv-select.open .niv-select-chevron { transform: rotate(180deg); }
+.niv-select-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  min-width: 100%;
+  max-width: min(320px, 90vw);
+  max-height: 264px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--niv-surface-2);
+  border: 1px solid var(--niv-border-soft);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+.niv-select-list[hidden] { display: none; }
+.niv-select-option {
+  display: flex;
+  align-items: center;
+  /* p2: 44px minimum touch height (was ~33px). */
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--niv-text);
+  white-space: nowrap;
+  /* p3: long names ellipsize like the trigger does, instead of being
+     clipped mid-word by the list's max-width. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.niv-select-option.active { background: rgba(255, 255, 255, 0.07); }
+.niv-select-option.selected {
+  background: rgba(25, 113, 194, 0.18);
+  font-weight: 600;
+}
+.niv-select-option.selected.active { background: rgba(25, 113, 194, 0.28); }
+@media (max-width: 600px) {
+  .filter-row .niv-select,
+  .filter-row .niv-select-btn { width: 100%; }
+  .niv-select-list { max-width: 100%; }
+}
+
+/* ==========================================================================
+   DESIGN SYSTEM CONSOLIDATION (wave 1): slim scrollbars, sidebar row
+   hitboxes, and the settings component kit. Page workers build strictly
+   from the CLASS API below and must not add page-private styles for
+   anything listed here. Every new rule is token based (var(--niv-*));
+   the only literal colors are the status tint foregrounds and tints
+   this file already uses in .niv-status and .niv-warn-box.
+
+   CLASS API (new classes; markup shape, one line each):
+   .niv-scroll            <div class="niv-scroll">: any overflow region that wants the slim themed scrollbar (also applied to the built-in sidebar scroll regions, see below).
+   .niv-tabs              <div class="niv-tabs"><button class="niv-tab-btn">...</button></div>: segmented tab bar container.
+   .niv-tab-btn           <button class="niv-tab-btn active">Label</button>: one tab inside .niv-tabs; .active marks the current tab.
+   .niv-tab-panel         <div class="niv-tab-panel active">...</div>: panel for one tab; hidden unless .active.
+   .niv-form-row          <div class="niv-form-row"><div class="niv-field">...</div><div class="niv-field">...</div></div>: side by side fields, stacks on narrow screens.
+   .niv-field-mono        <div class="niv-field niv-field-mono"><label>...</label><input></div>: .niv-field variant with a monospace input (URLs, codes, backend fields).
+   .niv-perm-member       <div class="niv-perm-member"><div class="niv-perm-member-header">Name <span class="niv-perm-member-role">Role</span></div><div class="niv-perm-grid">...</div></div>: one member block in a permissions list.
+   .niv-perm-member-header  Text line at the top of .niv-perm-member (member name).
+   .niv-perm-member-role  <span class="niv-perm-member-role">Role</span>: dim role label inside .niv-perm-member-header.
+   .niv-perm-grid         <div class="niv-perm-grid"><label><input type="checkbox">Label</label>...</div>: wrapping row of permission chips; a chip lights up in the accent when its input is checked (:has).
+   .niv-request-card      <div class="niv-request-card"><div><div class="niv-request-name">...</div><div class="niv-request-email">...</div></div><div class="niv-request-actions">...</div></div>: one pending request row.
+   .niv-request-name      <div class="niv-request-name">Name</div>: requester name inside .niv-request-card.
+   .niv-request-email     <div class="niv-request-email">mail</div>: dim requester email inside .niv-request-card.
+   .niv-request-actions   <div class="niv-request-actions"><button class="niv-btn-sm approve">...</button></div>: action button row inside .niv-request-card.
+   .niv-btn-sm            <button class="niv-btn-sm">Label</button>: small action button; add .approve or .reject for the status tint variants.
+   .niv-info-row          <div class="niv-info-row"><span class="niv-info-label">Label</span><span class="niv-info-value">Value</span></div>: one label/value line.
+   .niv-info-label        <span class="niv-info-label">Label</span>: fixed width dim label inside .niv-info-row.
+   .niv-info-value        <span class="niv-info-value">Value</span>: value inside .niv-info-row.
+   .niv-status-line       <div class="niv-status-line ok">Text</div>: status message; hidden until .ok, .warn or .err is added.
+   .niv-setting-row       <div class="niv-setting-row"><div><div class="niv-setting-label">...</div><div class="niv-setting-desc">...</div></div><label class="niv-switch">...</label></div>: label plus control row (notification and preference rows).
+   .niv-setting-label     <div class="niv-setting-label">Label</div>: label inside .niv-setting-row.
+   .niv-setting-desc      <div class="niv-setting-desc">Text</div>: dim description under .niv-setting-label.
+   .niv-saved-msg         <div class="niv-saved-msg">Text</div>: centered saved confirmation; hidden until the page sets display via .show or inline style.
+   .niv-btn-back          <a class="niv-btn-back" href="...">Back</a>: back link above a page title.
+   .niv-btn-secondary     <button class="niv-btn-secondary">Label</button>: full width secondary button; .lang-active marks the selected language option.
+   .niv-settings-card     Alias of .niv-card (defined with it above): dark settings card; use with .niv-card-title and .niv-card-desc.
+
+   CLASS API (pre-existing classes that already cover part of the kit;
+   use these, they are NOT redefined here):
+   .niv-card / .niv-card-title / .niv-card-desc   Dark card and its heading pair (see the cards section above; .niv-settings-card is its alias).
+   .niv-field             <div class="niv-field"><label>...</label><input></div>: labelled field; input, select and textarea are already styled on tokens.
+   .niv-switch            <label class="niv-switch"><input type="checkbox"><span class="track"></span></label>: iOS style toggle, green when checked; this is the settings page toggle.
+   .niv-status            Older status line with .ok and .err only; prefer .niv-status-line when a .warn state is needed.
+   .niv-btn-pill          Pill button; add .niv-btn-primary (accent) or .niv-btn-danger (solid red, full width) from the pill buttons section.
+   .niv-page-title / .niv-page-sub   Page heading and dim subheading.
+   .niv-user-row          Selectable user list row with .niv-user-avatar, .niv-user-name and .niv-user-email.
+   .niv-select            Custom dropdown component (see its own section above).
+   ========================================================================== */
+
+/* ---- slim themed scrollbar ----
+   Reusable through .niv-scroll, and applied to every scroll region the
+   dashboard and the shared sidebars already use:
+     .niv-float-panel   the dashboard floating panel itself
+     .niv-panel-body    the dashboard panel's scrolling middle zone
+     .niv-snav-body     the expanded sidebar nav unit body (projects list)
+     .niv-sidebar       the settings shell sidebar (.niv-shell > .niv-sidebar)
+     .niv-side          the shared company sidebar (users, updates)
+     .niv-select-list   the niv-select dropdown list
+   The top bar tab strips are deliberately NOT covered: they hide their
+   scrollbar on purpose in their own page rules. */
+.niv-scroll,
+.niv-float-panel,
+.niv-panel-body,
+.niv-snav-body,
+.niv-sidebar,
+.niv-side,
+.niv-select-list,
+.niv-shell > main,
+.niv-main,
+.ov-list-col,
+.ov-detail,
+.users-col,
+.detail,
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--niv-border) transparent;
+}
+.niv-scroll::-webkit-scrollbar,
+.niv-float-panel::-webkit-scrollbar,
+.niv-panel-body::-webkit-scrollbar,
+.niv-snav-body::-webkit-scrollbar,
+.niv-sidebar::-webkit-scrollbar,
+.niv-side::-webkit-scrollbar,
+.niv-select-list::-webkit-scrollbar,
+.niv-shell > main::-webkit-scrollbar,
+.niv-main::-webkit-scrollbar,
+.ov-list-col::-webkit-scrollbar,
+.ov-detail::-webkit-scrollbar,
+.users-col::-webkit-scrollbar,
+.detail::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.niv-scroll::-webkit-scrollbar-track,
+.niv-float-panel::-webkit-scrollbar-track,
+.niv-panel-body::-webkit-scrollbar-track,
+.niv-snav-body::-webkit-scrollbar-track,
+.niv-sidebar::-webkit-scrollbar-track,
+.niv-side::-webkit-scrollbar-track,
+.niv-select-list::-webkit-scrollbar-track,
+.niv-shell > main::-webkit-scrollbar-track,
+.niv-main::-webkit-scrollbar-track,
+.ov-list-col::-webkit-scrollbar-track,
+.ov-detail::-webkit-scrollbar-track,
+.users-col::-webkit-scrollbar-track,
+.detail::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+.niv-scroll::-webkit-scrollbar-thumb,
+.niv-float-panel::-webkit-scrollbar-thumb,
+.niv-panel-body::-webkit-scrollbar-thumb,
+.niv-snav-body::-webkit-scrollbar-thumb,
+.niv-sidebar::-webkit-scrollbar-thumb,
+.niv-side::-webkit-scrollbar-thumb,
+.niv-select-list::-webkit-scrollbar-thumb,
+.niv-shell > main::-webkit-scrollbar-thumb,
+.niv-main::-webkit-scrollbar-thumb,
+.ov-list-col::-webkit-scrollbar-thumb,
+.ov-detail::-webkit-scrollbar-thumb,
+.users-col::-webkit-scrollbar-thumb,
+.detail::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+  background: var(--niv-border);
+  border-radius: var(--niv-pill);
+}
+.niv-scroll::-webkit-scrollbar-thumb:hover,
+.niv-float-panel::-webkit-scrollbar-thumb:hover,
+.niv-panel-body::-webkit-scrollbar-thumb:hover,
+.niv-snav-body::-webkit-scrollbar-thumb:hover,
+.niv-sidebar::-webkit-scrollbar-thumb:hover,
+.niv-side::-webkit-scrollbar-thumb:hover,
+.niv-select-list::-webkit-scrollbar-thumb:hover,
+.niv-shell > main::-webkit-scrollbar-thumb:hover,
+.niv-main::-webkit-scrollbar-thumb:hover,
+.ov-list-col::-webkit-scrollbar-thumb:hover,
+.ov-detail::-webkit-scrollbar-thumb:hover,
+.users-col::-webkit-scrollbar-thumb:hover,
+.detail::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--niv-text-dim);
+}
+
+/* ---- sidebar row hitboxes ----
+   Rows are full content width targets inside the padded panel or side
+   card: the hover feedback and the click land on the whole row, not
+   just on the row's text. Panel geometry (inset, widths, detents) is
+   untouched; these rules only stretch rows that already exist. */
+.niv-panel-item,
+.niv-home-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* the label takes the slack so the trailing menu target sits at the
+   row's right edge and the row stays one full width target */
+.niv-panel-item > :first-child,
+.niv-home-row > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+/* the "..." menu target inside a row keeps its own distinct hitbox:
+   it paints and clicks above the row instead of merging into it */
+.niv-panel-item .dots,
+.niv-home-row .dots {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* p2: 44px touch target (was 36x28). Panel rows grow to meet it;
+     that is the intended trade, the dots are a primary row action. */
+  min-width: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+  color: var(--niv-text-dim);
+  letter-spacing: 2px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.niv-home-row .dots:hover {
+  background: var(--niv-surface-2);
+  color: var(--niv-text);
+}
+/* sidebar nav buttons and rows in the panel, the settings sidebar and
+   the shared .niv-side card all stretch to the padded container width */
+.niv-panel-actions .niv-nav-btn,
+.niv-sidebar .niv-nav-btn,
+.niv-side .niv-nav-btn {
+  width: 100%;
+  box-sizing: border-box;
+}
+.niv-side .niv-nav,
+.niv-side .niv-nav-group,
+.niv-sidebar .niv-nav,
+.niv-sidebar .niv-nav-group {
+  width: 100%;
+}
+/* main nav inside the dashboard panel: the unit and its row fill the
+   panel width, and the nav button itself flexes across the row (the
+   collapsed rail rule in the dashboard still wins on specificity and
+   keeps its 40px icon target) */
+.niv-navunit,
+.niv-snav-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+.niv-navunit > .niv-snav {
+  width: 100%;
+  box-sizing: border-box;
+}
+.niv-snav-row .niv-snav {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+/* the small sibling buttons in a nav row (add, chevron) stay their own
+   targets and never get stretched by the row rules above */
+.niv-snav-row .niv-snav-plus,
+.niv-snav-row .niv-plus-btn {
+  flex: none;
+  position: relative;
+  z-index: 1;
+}
+/* section collapse headers: the chevron button is appended at the
+   right edge of .niv-panel-sec-title, inside the scrolling panel body,
+   so the header gets right padding that clears the 8px scrollbar plus
+   a gap instead of sitting under it */
+.niv-panel-sec-title {
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+.niv-panel-sec-title .niv-sec-chev {
+  flex: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- settings component kit: tabs ---- */
+.niv-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--niv-surface-2);
+  border: 1px solid var(--niv-border-soft);
+  border-radius: 14px;
+  padding: 4px;
+}
+.niv-tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  min-height: 44px;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: var(--niv-text-dim);
+  transition: background 0.15s, color 0.15s;
+}
+.niv-tab-btn:hover { color: var(--niv-text); }
+.niv-tab-btn.active {
+  background: rgba(25, 113, 194, 0.22);
+  color: var(--niv-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.niv-tab-btn:focus-visible {
+  outline: 2px solid var(--niv-accent);
+  outline-offset: 1px;
+}
+.niv-tab-panel { display: none; }
+.niv-tab-panel.active { display: block; }
+
+/* ---- settings component kit: form rows ----
+   .niv-field itself is pre-existing (see the form fields section);
+   this only adds the row layout and the monospace variant. */
+.niv-form-row {
+  display: flex;
+  gap: 12px;
+}
+.niv-form-row > .niv-field {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .niv-form-row { flex-direction: column; gap: 0; }
+}
+.niv-field.niv-field-mono input {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* ---- settings component kit: permission chips ---- */
+.niv-perm-member {
+  border-bottom: 1px solid var(--niv-border-soft);
+  padding: 14px 0;
+}
+.niv-perm-member:last-child { border-bottom: none; }
+.niv-perm-member-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--niv-text);
+  margin-bottom: 8px;
+}
+.niv-perm-member-role {
+  font-size: 12px;
+  color: var(--niv-text-dim);
+  font-weight: 500;
+}
+.niv-perm-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.niv-perm-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--niv-text-dim);
+  cursor: pointer;
+  padding: 4px 10px;
+  background: var(--niv-surface-2);
+  border-radius: 8px;
+  border: 1px solid var(--niv-border-soft);
+}
+.niv-perm-grid label:has(input:checked) {
+  background: rgba(25, 113, 194, 0.18);
+  border-color: var(--niv-accent);
+  color: var(--niv-text);
+}
+.niv-perm-grid input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--niv-accent);
+}
+
+/* ---- settings component kit: request cards and small buttons ---- */
+.niv-request-card {
+  background: var(--niv-surface);
+  border: 1px solid var(--niv-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.niv-request-name { font-size: 14px; font-weight: 600; color: var(--niv-text); }
+.niv-request-email { font-size: 12px; color: var(--niv-text-dim); }
+.niv-request-actions { display: flex; gap: 8px; }
+.niv-btn-sm {
+  padding: 7px 16px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--niv-border-soft);
+  border-radius: 8px;
+  background: var(--niv-surface-2);
+  color: var(--niv-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.niv-btn-sm:hover { background: var(--niv-surface); }
+.niv-btn-sm:disabled { opacity: 0.5; cursor: default; }
+.niv-btn-sm:focus-visible {
+  outline: 2px solid var(--niv-accent);
+  outline-offset: 1px;
+}
+/* status tint variants, mirroring .niv-status in this file */
+.niv-btn-sm.approve {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--niv-green);
+  color: #4ade80;
+}
+.niv-btn-sm.approve:hover { background: rgba(34, 197, 94, 0.25); }
+.niv-btn-sm.reject {
+  background: rgba(229, 72, 77, 0.15);
+  border-color: var(--niv-red);
+  color: #f87171;
+}
+.niv-btn-sm.reject:hover { background: rgba(229, 72, 77, 0.25); }
+
+/* ---- settings component kit: info rows, setting rows, status ---- */
+.niv-info-row {
+  display: flex;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--niv-border-soft);
+  font-size: 14px;
+}
+.niv-info-row:last-child { border-bottom: none; }
+.niv-info-label {
+  font-weight: 600;
+  color: var(--niv-text-dim);
+  min-width: 120px;
+  flex: none;
+}
+.niv-info-value {
+  color: var(--niv-text);
+  flex: 1;
+  min-width: 0;
+}
+.niv-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--niv-border-soft);
+}
+.niv-setting-row:last-child { border-bottom: none; }
+.niv-setting-label { font-size: 14px; font-weight: 600; color: var(--niv-text); }
+.niv-setting-desc { font-size: 12px; color: var(--niv-text-dim); margin-top: 2px; }
+.niv-status-line {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-top: 12px;
+  display: none;
+}
+/* status tints mirror .niv-status, plus the warn tint from .niv-warn-box */
+.niv-status-line.ok { display: block; background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.niv-status-line.warn { display: block; background: rgba(230, 119, 0, 0.18); color: #fbbf24; }
+.niv-status-line.err { display: block; background: rgba(229, 72, 77, 0.15); color: #f87171; }
+.niv-saved-msg {
+  font-size: 13px;
+  color: #4ade80;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px;
+  display: none;
+}
+.niv-saved-msg.show { display: block; }
+
+/* ---- settings component kit: back link and secondary button ---- */
+.niv-btn-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 12px 10px 2px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--niv-accent);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.niv-btn-back:hover { text-decoration: underline; }
+.niv-btn-secondary {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 16px;
+  min-height: 48px;
+  background: var(--niv-surface-2);
+  color: var(--niv-text);
+  border: 1.5px solid var(--niv-border-soft);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.niv-btn-secondary:hover { border-color: var(--niv-border); }
+.niv-btn-secondary:disabled { opacity: 0.6; cursor: default; }
+.niv-btn-secondary.lang-active {
+  border-color: var(--niv-accent);
+  color: var(--niv-text);
+  background: rgba(25, 113, 194, 0.15);
+}
+
+/* ---- m18: compact mode topbar rule (owner's stated rule) ----
+   Compact sidebar ON means the topbar is SHOWN in dashboard/company
+   views, in BOTH rail states. The dashboard's inline shell CSS only
+   showed it while collapsed (body.niv-compact.sidebar-collapsed), so
+   manually expanding the rail made the topbar vanish. The ID in this
+   selector outranks the dashboard's class-only rules regardless of
+   order. Desktop only: on mobile the topbar is the floating hamburger
+   shell and follows its own rules. */
+@media (min-width: 901px) {
+  body.has-sidebar.niv-compact header#niv-topbar.niv-topbar { display: flex; }
+}
+
+/* ============================================================
+   LABS MONOCHROME (UI redesign draft, Oct 2026)
+   Design language from the Nivelato Labs site draft: black and
+   white, futuristic, sharp geometry, thin lines, mono labels.
+   Brand accent is now white; elements that paint a background
+   with the accent need near-black text to stay legible.
+   Semantic status colors (green/red above) are functional
+   signals in a working app and are intentionally kept.
+   ============================================================ */
+.niv-btn-primary { color: #050505; }
+.niv-share-save { color: #050505; }
+.niv-sidebar, .niv-main { letter-spacing: 0.005em; }
+.niv-company-name, .niv-panel-title { letter-spacing: -0.01em; }
